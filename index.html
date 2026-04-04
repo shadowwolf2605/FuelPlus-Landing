@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FuelPlus — Умен контрол на горивото</title>
+  <meta name="description" content="Проследявай горивния разход, разходите по колата и поддръжката — всичко на едно място." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080b14;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.08);
+      --text: #f0f4ff;
+      --muted: rgba(255,255,255,0.45);
+      --accent: #3b82f6;
+      --accent2: #8b5cf6;
+      --accent3: #06b6d4;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ── Animated background ───────────────────────────────────── */
+    .bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      overflow: hidden; pointer-events: none;
+    }
+    .blob {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.18;
+      animation: float 20s ease-in-out infinite;
+    }
+    .blob-1 { width: 700px; height: 700px; background: var(--accent); top: -200px; left: -150px; }
+    .blob-2 { width: 600px; height: 600px; background: var(--accent2); top: 200px; right: -200px; animation-delay: -7s; }
+    .blob-3 { width: 500px; height: 500px; background: var(--accent3); bottom: 0; left: 30%; animation-delay: -14s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33% { transform: translate(40px,-60px) scale(1.05); }
+      66% { transform: translate(-30px,40px) scale(0.95); }
+    }
+
+    .bg-canvas::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025; pointer-events: none;
+    }
+
+    /* ── Layout ────────────────────────────────────────────────── */
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
+
+    /* ── Nav ───────────────────────────────────────────────────── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      padding: 16px 0;
+      border-bottom: 1px solid transparent;
+      transition: all 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(8,11,20,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom-color: var(--border);
+    }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
+    .logo {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
+      text-decoration: none; color: var(--text);
+    }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo span { color: var(--accent); }
+
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 12px;
+      font-size: 14px; font-weight: 600; text-decoration: none;
+      transition: all 0.2s; cursor: pointer; border: none;
+    }
+    .btn-primary {
+      background: var(--accent); color: #fff;
+      box-shadow: 0 0 20px rgba(59,130,246,0.35);
+    }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); box-shadow: 0 4px 24px rgba(59,130,246,0.5); }
+    .btn-ghost {
+      background: var(--surface); color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.08); }
+    .btn-big { padding: 14px 28px; font-size: 15px; border-radius: 14px; }
+
+    /* ── Hero ──────────────────────────────────────────────────── */
+    .hero { padding: 100px 0 80px; text-align: center; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 100px;
+      background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25);
+      font-size: 12px; font-weight: 600; color: var(--accent);
+      margin-bottom: 28px; letter-spacing: 0.5px;
+      animation: fadeUp 0.6s ease both;
+    }
+    .badge-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse-dot 2s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    h1 {
+      font-size: clamp(42px, 7vw, 80px);
+      font-weight: 900; line-height: 1.05;
+      letter-spacing: -2px; margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 50%, var(--accent3) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub {
+      font-size: clamp(17px, 2.5vw, 20px); color: var(--muted);
+      max-width: 560px; margin: 0 auto 40px;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+    .hero-actions {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Phone mockup ──────────────────────────────────────────── */
+    .phone-wrap {
+      margin: 60px auto 0; width: fit-content;
+      animation: fadeUp 0.7s 0.4s ease both; position: relative;
+    }
+    .phone-glow {
+      position: absolute; inset: -40px;
+      background: radial-gradient(ellipse at 50% 60%, rgba(59,130,246,0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .phone {
+      width: 260px; background: #0d1117;
+      border-radius: 40px;
+      border: 2px solid rgba(255,255,255,0.12);
+      overflow: hidden; position: relative;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 30px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+    .phone-notch { height: 28px; background: #0d1117; display: flex; align-items: center; justify-content: center; }
+    .phone-notch-pill { width: 80px; height: 8px; background: rgba(255,255,255,0.15); border-radius: 4px; }
+    .phone-screen {
+      background: linear-gradient(160deg, #111827, #0f172a);
+      padding: 12px; min-height: 480px;
+    }
+    .mini-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .mini-title { font-size: 13px; font-weight: 700; color: #f0f4ff; }
+    .mini-icon-row { display: flex; gap: 6px; }
+    .mini-dot { width: 20px; height: 20px; border-radius: 6px; }
+    .mini-card {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
+    }
+    .mini-stat-row { display: flex; gap: 6px; margin-bottom: 8px; }
+    .mini-stat {
+      flex: 1; background: rgba(255,255,255,0.05);
+      border-radius: 10px; padding: 8px; text-align: center;
+    }
+    .mini-stat-val { font-size: 13px; font-weight: 700; }
+    .mini-stat-lbl { font-size: 8px; color: rgba(255,255,255,0.4); margin-top: 1px; }
+    .mini-bar-wrap { margin-top: 6px; }
+    .mini-bar-label { display: flex; justify-content: space-between; font-size: 8px; color: rgba(255,255,255,0.4); margin-bottom: 3px; }
+    .mini-bar { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+    .mini-bar-fill { height: 100%; border-radius: 3px; }
+    .mini-trip-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .mini-trip-row:last-child { border-bottom: none; }
+    .mini-trip-icon {
+      width: 22px; height: 22px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; flex-shrink: 0;
+    }
+    .mini-trip-info { flex: 1; }
+    .mini-trip-title { font-size: 9px; font-weight: 600; color: #e2e8f0; }
+    .mini-trip-sub { font-size: 8px; color: rgba(255,255,255,0.35); }
+    .mini-trip-val { font-size: 9px; font-weight: 700; }
+    .mini-tabs {
+      display: flex; background: rgba(0,0,0,0.3);
+      padding: 6px 8px; border-top: 1px solid rgba(255,255,255,0.06);
+      margin-top: 8px;
+    }
+    .mini-tab {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; gap: 2px;
+      font-size: 7px; color: rgba(255,255,255,0.3); padding: 4px 0;
+    }
+    .mini-tab.active { color: #3b82f6; }
+    .mini-tab-icon { font-size: 12px; }
+
+    /* ── Stats strip ───────────────────────────────────────────── */
+    .stats-strip {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats-grid { display: flex; justify-content: center; flex-wrap: wrap; }
+    .stat-item { flex: 1; min-width: 180px; text-align: center; padding: 20px 24px; position: relative; }
+    .stat-item + .stat-item::before {
+      content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+      width: 1px; background: var(--border);
+    }
+    .stat-num {
+      font-size: 44px; font-weight: 900; letter-spacing: -2px; line-height: 1;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .stat-label { font-size: 13px; color: var(--muted); margin-top: 6px; font-weight: 500; }
+
+    /* ── Features ──────────────────────────────────────────────── */
+    .features { padding: 100px 0; }
+    .section-label {
+      text-align: center; font-size: 12px; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 16px;
+    }
+    h2 {
+      text-align: center;
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 900; letter-spacing: -1.5px;
+      line-height: 1.1; margin-bottom: 16px;
+    }
+    .section-sub {
+      text-align: center; font-size: 17px; color: var(--muted);
+      max-width: 500px; margin: 0 auto 64px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .feature-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 20px; padding: 28px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    .feature-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(59,130,246,0.06), transparent);
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-4px); border-color: rgba(59,130,246,0.3); box-shadow: 0 12px 40px rgba(0,0,0,0.3); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 18px; position: relative;
+    }
+    .feature-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.3px; }
+    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.65; }
+    .feature-tag {
+      display: inline-flex; align-items: center; margin-top: 14px;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px;
+    }
+    .fc-blue .feature-icon { background: rgba(59,130,246,0.15); }
+    .fc-blue .feature-tag { background: rgba(59,130,246,0.12); color: #60a5fa; }
+    .fc-purple .feature-icon { background: rgba(139,92,246,0.15); }
+    .fc-purple .feature-tag { background: rgba(139,92,246,0.12); color: #a78bfa; }
+    .fc-green .feature-icon { background: rgba(34,197,94,0.15); }
+    .fc-green .feature-tag { background: rgba(34,197,94,0.12); color: #4ade80; }
+    .fc-orange .feature-icon { background: rgba(249,115,22,0.15); }
+    .fc-orange .feature-tag { background: rgba(249,115,22,0.12); color: #fb923c; }
+    .fc-cyan .feature-icon { background: rgba(6,182,212,0.15); }
+    .fc-cyan .feature-tag { background: rgba(6,182,212,0.12); color: #22d3ee; }
+    .fc-rose .feature-icon { background: rgba(244,63,94,0.15); }
+    .fc-rose .feature-tag { background: rgba(244,63,94,0.12); color: #fb7185; }
+
+    /* ── Highlight section ──────────────────────────────────────── */
+    .highlight { padding: 80px 0; }
+    .highlight-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .highlight-text h2 { text-align: left; }
+    .highlight-text .section-sub { text-align: left; margin: 0; }
+    .highlight-text .section-label { text-align: left; }
+    .check-list { list-style: none; margin-top: 28px; display: flex; flex-direction: column; gap: 14px; }
+    .check-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+    .check-icon {
+      width: 24px; height: 24px; border-radius: 8px;
+      background: rgba(34,197,94,0.15);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 13px;
+    }
+    .highlight-visual { display: flex; flex-direction: column; gap: 12px; }
+    .hv-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px 20px;
+      display: flex; align-items: center; gap: 14px;
+      transition: transform 0.3s;
+    }
+    .hv-card:hover { transform: translateX(6px); }
+    .hv-card-icon {
+      width: 40px; height: 40px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .hv-card-text { flex: 1; }
+    .hv-card-title { font-size: 14px; font-weight: 600; }
+    .hv-card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .hv-card-badge { font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: 100px; }
+    .hv-progress { margin-top: 8px; }
+    .hv-progress-bar { height: 5px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+    .hv-progress-fill { height: 100%; border-radius: 3px; }
+
+    /* ── CTA ────────────────────────────────────────────────────── */
+    .cta-section { padding: 100px 0; text-align: center; }
+    .cta-box {
+      background: linear-gradient(135deg, rgba(59,130,246,0.1), rgba(139,92,246,0.1));
+      border: 1px solid rgba(59,130,246,0.2);
+      border-radius: 28px; padding: 64px 40px;
+      position: relative; overflow: hidden;
+    }
+    .cta-box::before {
+      content: ''; position: absolute; top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%);
+      pointer-events: none;
+    }
+    .cta-box h2 { margin-bottom: 16px; }
+    .cta-box p { color: var(--muted); font-size: 17px; margin-bottom: 36px; max-width: 480px; margin-left: auto; margin-right: auto; }
+    .cta-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── Footer ─────────────────────────────────────────────────── */
+    footer { border-top: 1px solid var(--border); padding: 32px 0; }
+    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .footer-copy { font-size: 13px; color: var(--muted); }
+    .footer-links { display: flex; gap: 20px; }
+    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+
+    /* ── Scroll reveal ──────────────────────────────────────────── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+
+    /* ── Mobile ─────────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .highlight-grid { grid-template-columns: 1fr; gap: 40px; }
+    }
+    @media (max-width: 640px) {
+      .hero { padding: 60px 0 40px; }
+      .phone { width: 220px; }
+      .stat-item + .stat-item::before { display: none; }
+      .stat-item { min-width: 140px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-canvas">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+
+<!-- Nav -->
+<nav id="nav">
+  <div class="wrap">
+    <div class="nav-inner">
+      <a href="#" class="logo">
+        <div class="logo-icon">⛽</div>
+        Fuel<span>Plus</span>
+      </a>
+      <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary" style="padding:10px 20px;font-size:14px">
+        ⚡ Отвори приложението
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="badge"><span class="badge-dot"></span> Безплатно &bull; PWA &bull; Работи офлайн</div>
+    <h1>Умен контрол на<br><span class="gradient-text">горивото и колата</span></h1>
+    <p class="hero-sub">Проследявай разходите, поддръжката и пътуванията на всичките си автомобили — всичко на едно красиво място.</p>
+    <div class="hero-actions">
+      <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary btn-big">🚀 Стартирай безплатно</a>
+      <a href="#features" class="btn btn-ghost btn-big">Разгледай функциите ↓</a>
+    </div>
+
+    <div class="phone-wrap">
+      <div class="phone-glow"></div>
+      <div class="phone">
+        <div class="phone-notch"><div class="phone-notch-pill"></div></div>
+        <div class="phone-screen">
+          <div class="mini-header">
+            <span class="mini-title">Разход на гориво</span>
+            <div class="mini-icon-row">
+              <div class="mini-dot" style="background:#3b82f6"></div>
+              <div class="mini-dot" style="background:rgba(255,255,255,0.1)"></div>
+            </div>
+          </div>
+          <div class="mini-stat-row">
+            <div class="mini-stat"><div class="mini-stat-val" style="color:#3b82f6">12 450</div><div class="mini-stat-lbl">общо км</div></div>
+            <div class="mini-stat"><div class="mini-stat-val" style="color:#f97316">847</div><div class="mini-stat-lbl">разходи &euro;</div></div>
+            <div class="mini-stat"><div class="mini-stat-val" style="color:#22c55e">6.8</div><div class="mini-stat-lbl">л/100км</div></div>
+          </div>
+          <div class="mini-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+              <span style="font-size:9px;font-weight:700;color:#f97316">⚡ Смяна на масло</span>
+              <span style="font-size:8px;color:rgba(255,255,255,0.4)">BMW 320i</span>
+            </div>
+            <div class="mini-bar-wrap">
+              <div class="mini-bar-label"><span>0 км</span><span style="color:#f97316;font-weight:600">Остават 2 100 км</span><span>10 000 км</span></div>
+              <div class="mini-bar"><div class="mini-bar-fill" style="width:79%;background:linear-gradient(90deg,#22c55e,#f97316)"></div></div>
+            </div>
+          </div>
+          <div class="mini-card" style="padding:8px 12px">
+            <div style="font-size:8px;font-weight:700;color:rgba(255,255,255,0.5);margin-bottom:4px;text-transform:uppercase;letter-spacing:1px">История</div>
+            <div class="mini-trip-row">
+              <div class="mini-trip-icon" style="background:rgba(59,130,246,0.2)">🛣️</div>
+              <div class="mini-trip-info"><div class="mini-trip-title">София → Варна</div><div class="mini-trip-sub">450 км &bull; 6.4 л/100км</div></div>
+              <div class="mini-trip-val" style="color:#f97316">62.40&euro;</div>
+            </div>
+            <div class="mini-trip-row">
+              <div class="mini-trip-icon" style="background:rgba(34,197,94,0.2)">⛽</div>
+              <div class="mini-trip-info"><div class="mini-trip-title">Градско пътуване</div><div class="mini-trip-sub">85 км &bull; 7.2 л/100км</div></div>
+              <div class="mini-trip-val" style="color:#f97316">11.20&euro;</div>
+            </div>
+          </div>
+          <div class="mini-tabs">
+            <div class="mini-tab active"><span class="mini-tab-icon">🏠</span>Начало</div>
+            <div class="mini-tab"><span class="mini-tab-icon">🔧</span>Поддръжка</div>
+            <div class="mini-tab"><span class="mini-tab-icon">🗺️</span>Карта</div>
+            <div class="mini-tab"><span class="mini-tab-icon">💰</span>Разходи</div>
+            <div class="mini-tab"><span class="mini-tab-icon">📊</span>Отчети</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<div class="stats-strip reveal">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-num">5+</div><div class="stat-label">Типа гориво</div></div>
+      <div class="stat-item"><div class="stat-num">&infin;</div><div class="stat-label">Коли в профила</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Безплатно</div></div>
+      <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">Регистрации нужни</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Features -->
+<section class="features" id="features">
+  <div class="wrap">
+    <p class="section-label reveal">Функционалности</p>
+    <h2 class="reveal reveal-delay-1">Всичко за твоя автомобил</h2>
+    <p class="section-sub reveal reveal-delay-2">Пълен набор от инструменти за умен шофьор</p>
+
+    <div class="features-grid">
+      <div class="feature-card fc-blue reveal"><div class="feature-icon">🚗</div><div class="feature-title">Множество коли</div><div class="feature-desc">Добави неограничен брой автомобили с профили — марка, модел, година, снимка и тип гориво. Превключвай лесно между тях.</div><span class="feature-tag">Нова функция ✦</span></div>
+      <div class="feature-card fc-purple reveal reveal-delay-1"><div class="feature-icon">📊</div><div class="feature-title">Подробни отчети</div><div class="feature-desc">Графики на разхода, история на пътуванията, анализ по месеци. Виж как се е подобрила ефективността ти с времето.</div><span class="feature-tag">Детайлна аналитика</span></div>
+      <div class="feature-card fc-orange reveal reveal-delay-2"><div class="feature-icon">⚡</div><div class="feature-title">Напомняне за масло</div><div class="feature-desc">Въведи интервала за смяна на маслото и виж прогрес бар в реално време. Никога повече не пропусни важна поддръжка.</div><span class="feature-tag">Нова функция ✦</span></div>
+      <div class="feature-card fc-green reveal"><div class="feature-icon">⛽</div><div class="feature-title">Тип гориво</div><div class="feature-desc">Бензин, дизел, газ, електро или хибрид — записвай типа гориво за всяко пътуване и следи разходите по тип.</div><span class="feature-tag">Пълна поддръжка</span></div>
+      <div class="feature-card fc-rose reveal reveal-delay-1"><div class="feature-icon">🚨</div><div class="feature-title">Управление на глоби</div><div class="feature-desc">Записвай глоби с краен срок за плащане. Автоматично напомняне за 50% отстъпка при плащане в 7 дни. Следи статуса Платена/Неплатена.</div><span class="feature-tag">Нова функция ✦</span></div>
+      <div class="feature-card fc-cyan reveal reveal-delay-2"><div class="feature-icon">🔔</div><div class="feature-title">Браузър нотификации</div><div class="feature-desc">Получавай известия за изтичащи документи — винетка, гражданска, каско, технически преглед и шофьорска книжка.</div><span class="feature-tag">PWA поддръжка</span></div>
+      <div class="feature-card fc-blue reveal"><div class="feature-icon">🗺️</div><div class="feature-title">Умен планировчик</div><div class="feature-desc">Изчисли горивото за маршрут — въведи начало и край и получи точно колко литра ще ти трябват и каква ще е цената.</div><span class="feature-tag">GPS интеграция</span></div>
+      <div class="feature-card fc-purple reveal reveal-delay-1"><div class="feature-icon">💰</div><div class="feature-title">Разходи и анализ</div><div class="feature-desc">Ремонти, паркинг, магистрала, миене — записвай всичко с категории. Пай-чарт анализ по категории и месец.</div><span class="feature-tag">Пълен финансов преглед</span></div>
+      <div class="feature-card fc-green reveal reveal-delay-2"><div class="feature-icon">🌙</div><div class="feature-title">Тъмен режим &amp; теми</div><div class="feature-desc">5 цветни теми — синьо, лилаво, зелено, оранжево, розово. Тъмен и светъл режим. Изглежда страхотно на всеки телефон.</div><span class="feature-tag">5 теми</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlight -->
+<section class="highlight">
+  <div class="wrap">
+    <div class="highlight-grid">
+      <div class="highlight-text reveal">
+        <p class="section-label" style="text-align:left">Поддръжка</p>
+        <h2 style="font-size:clamp(28px,4vw,42px)">Винаги знай кога<br>трябва нещо</h2>
+        <p class="section-sub">Цялостна система за проследяване на поддръжката на колата ти.</p>
+        <ul class="check-list">
+          <li><div class="check-icon">✓</div>Записвай смени на масло, гуми, застраховки</li>
+          <li><div class="check-icon">✓</div>Прогрес бар за км до следваща смяна</li>
+          <li><div class="check-icon">✓</div>Дигитален портфейл за документи</li>
+          <li><div class="check-icon">✓</div>Известия за изтичащи документи</li>
+        </ul>
+      </div>
+      <div class="highlight-visual reveal reveal-delay-1">
+        <div class="hv-card">
+          <div class="hv-card-icon" style="background:rgba(249,115,22,0.15)">⚡</div>
+          <div class="hv-card-text"><div class="hv-card-title">Смяна на масло</div><div class="hv-card-sub">BMW 320i &bull; Остават 2 100 км</div><div class="hv-progress"><div class="hv-progress-bar"><div class="hv-progress-fill" style="width:79%;background:linear-gradient(90deg,#22c55e,#f97316)"></div></div></div></div>
+          <div class="hv-card-badge" style="background:rgba(249,115,22,0.12);color:#fb923c">79%</div>
+        </div>
+        <div class="hv-card">
+          <div class="hv-card-icon" style="background:rgba(34,197,94,0.15)">🛡️</div>
+          <div class="hv-card-text"><div class="hv-card-title">Гражданска застраховка</div><div class="hv-card-sub">Изтича след 45 дни</div></div>
+          <div class="hv-card-badge" style="background:rgba(234,179,8,0.12);color:#facc15">45 дни</div>
+        </div>
+        <div class="hv-card">
+          <div class="hv-card-icon" style="background:rgba(59,130,246,0.15)">🔍</div>
+          <div class="hv-card-text"><div class="hv-card-title">Технически преглед</div><div class="hv-card-sub">Изтича след 180 дни</div></div>
+          <div class="hv-card-badge" style="background:rgba(34,197,94,0.12);color:#4ade80">180 дни</div>
+        </div>
+        <div class="hv-card">
+          <div class="hv-card-icon" style="background:rgba(244,63,94,0.15)">🚨</div>
+          <div class="hv-card-text"><div class="hv-card-title">Глоба от КАТ — 45&euro;</div><div class="hv-card-sub">Плати до 15.04.2026 &bull; -50% в 7 дни</div></div>
+          <div class="hv-card-badge" style="background:rgba(244,63,94,0.12);color:#fb7185">Неплатена</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="wrap">
+    <div class="cta-box reveal">
+      <h2>Готов да контролираш<br><span class="gradient-text">разходите си?</span></h2>
+      <p>Безплатно, без регистрация, работи директно в браузъра. Инсталирай като PWA на телефона си за достъп офлайн.</p>
+      <div class="cta-actions">
+        <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary btn-big" style="font-size:16px;padding:16px 32px">🚀 Отвори FuelPlus</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <div class="footer-inner">
+      <div class="footer-copy">&copy; 2026 FuelPlus — Умен контрол на горивото</div>
+      <div class="footer-links">
+        <a href="https://fuel-web-app-beta.vercel.app">Приложение</a>
+        <a href="https://github.com/shadowwolf2605/FuelWebApp">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 20));
+  const observer = new IntersectionObserver(
+    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+    { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+  );
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
