@@ -3,34 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>FuelPlus — Умен контрол на горивото</title>
-  <meta name="description" content="Проследявай горивния разход, разходите по колата и поддръжката — всичко на едно място." />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..900&display=swap" rel="stylesheet">
+  <title>Разход на гориво — Управление на автомобил</title>
+  <meta name="description" content="Проследявай разхода на гориво, разходите и поддръжката на твоя автомобил с едно приложение." />
+  <link rel="icon" href="https://fuel-web-app-beta.vercel.app/favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #050508;
-      --surface: rgba(255,255,255,0.03);
-      --surface2: rgba(255,255,255,0.06);
-      --border: rgba(255,255,255,0.07);
-      --text: #eef2ff;
-      --muted: rgba(255,255,255,0.4);
-      --accent: #6366f1;
-      --accent2: #8b5cf6;
-      --accent3: #06b6d4;
-      --blue: #3b82f6;
-      --green: #22c55e;
-      --orange: #f97316;
-      --rose: #f43f5e;
+      --bg:        #07111f;
+      --bg2:       #0d1b2e;
+      --card:      #0f2040;
+      --card2:     #112244;
+      --blue:      #3b82f6;
+      --blue-l:    #60a5fa;
+      --blue-d:    #1d4ed8;
+      --cyan:      #22d3ee;
+      --purple:    #a78bfa;
+      --green:     #34d399;
+      --orange:    #fb923c;
+      --rose:      #fb7185;
+      --text:      #f0f4ff;
+      --muted:     #8ba4c0;
+      --border:    rgba(59,130,246,.18);
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: 'Inter', sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
@@ -38,584 +41,630 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    ::selection { background: rgba(99,102,241,0.3); }
-
-    /* ── Grid background ─────────────────────────────────── */
-    .grid-bg {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 20%, transparent 100%);
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0;
     }
 
-    /* ── Glow orbs ───────────────────────────────────────── */
-    .orb-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
-    .orb {
-      position: absolute; border-radius: 50%;
-      filter: blur(100px); opacity: 0.12;
-      animation: orb-drift 25s ease-in-out infinite;
-    }
-    .orb-1 { width: 800px; height: 800px; background: var(--accent); top: -300px; left: -200px; }
-    .orb-2 { width: 600px; height: 600px; background: var(--accent3); top: 400px; right: -250px; animation-delay: -10s; }
-    .orb-3 { width: 500px; height: 500px; background: var(--accent2); bottom: -100px; left: 25%; animation-delay: -18s; }
-
-    @keyframes orb-drift {
-      0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); }
-      25% { transform: translate(50px,-80px) scale(1.1) rotate(5deg); }
-      50% { transform: translate(-40px,40px) scale(0.9) rotate(-3deg); }
-      75% { transform: translate(30px,60px) scale(1.05) rotate(4deg); }
-    }
-
-    /* ── Layout ──────────────────────────────────────────── */
-    .wrap { max-width: 1140px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
-
-    /* ── Nav ─────────────────────────────────────────────── */
+    /* ─── NAV ─── */
     nav {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      z-index: 100; width: calc(100% - 32px); max-width: 800px;
-      padding: 12px 20px;
-      background: rgba(10,10,20,0.6);
-      backdrop-filter: blur(24px) saturate(180%);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      transition: all 0.3s;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(16px, 5vw, 64px);
+      height: 64px;
+      background: rgba(7,17,31,.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
-    nav.scrolled { background: rgba(10,10,20,0.85); box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
-    .nav-inner { display: flex; align-items: center; justify-content: space-between; }
-    .logo {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 17px; font-weight: 800; letter-spacing: -0.5px;
-      text-decoration: none; color: var(--text);
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .nav-logo img { width: 34px; height: 34px; border-radius: 8px; }
+    .nav-logo span { font-weight: 700; font-size: 15px; color: var(--text); }
+
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500;
+      transition: color .2s;
     }
-    .logo-icon {
-      width: 32px; height: 32px; border-radius: 9px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 15px; box-shadow: 0 0 20px rgba(99,102,241,0.4);
-    }
-    .logo span { background: linear-gradient(135deg, var(--accent), var(--accent3)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-links a:hover { color: var(--text); }
+
+    @media (max-width: 640px) { .nav-links { display: none; } }
 
     .btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 20px; border-radius: 12px;
-      font-size: 14px; font-weight: 600; text-decoration: none;
-      transition: all 0.25s; cursor: pointer; border: none;
-      position: relative;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      padding: 9px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none; transition: all .2s;
+      white-space: nowrap;
     }
     .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      color: #fff;
-      box-shadow: 0 0 24px rgba(99,102,241,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+      background: var(--blue); color: #fff;
+      box-shadow: 0 0 24px rgba(59,130,246,.4);
     }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(99,102,241,0.6), inset 0 1px 0 rgba(255,255,255,0.2); }
+    .btn-primary:hover {
+      background: #2563eb;
+      box-shadow: 0 0 32px rgba(59,130,246,.6);
+      transform: translateY(-1px);
+    }
     .btn-ghost {
-      background: rgba(255,255,255,0.05); color: var(--text);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent; color: var(--muted);
+      border: 1px solid var(--border);
     }
-    .btn-ghost:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); }
-    .btn-big { padding: 16px 32px; font-size: 15px; border-radius: 16px; }
+    .btn-ghost:hover { color: var(--text); border-color: rgba(59,130,246,.4); }
 
-    /* Shimmer effect on primary button */
-    .btn-primary::after {
-      content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      border-radius: inherit;
-      animation: shimmer 3s ease-in-out infinite;
-    }
-    @keyframes shimmer {
-      0% { left: -100%; }
-      50%, 100% { left: 150%; }
+    /* ─── HERO ─── */
+    .hero {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center;
+      padding: 100px clamp(16px, 6vw, 80px) 60px;
+      overflow: hidden;
     }
 
-    /* ── Hero ────────────────────────────────────────────── */
-    .hero { padding: 140px 0 80px; text-align: center; position: relative; }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: -1;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,.22) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 50% at 20% 80%, rgba(167,139,250,.1) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 80% 90%, rgba(34,211,238,.08) 0%, transparent 60%);
+    }
 
-    .badge {
+    .hero-grid {
+      position: absolute; inset: 0; z-index: -1;
+      background-image:
+        linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-badge {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 18px; border-radius: 100px;
-      background: rgba(99,102,241,0.08);
-      border: 1px solid rgba(99,102,241,0.2);
-      font-size: 13px; font-weight: 600; color: rgba(165,163,255,0.9);
-      margin-bottom: 32px; letter-spacing: 0.3px;
-      animation: fadeUp 0.7s ease both;
+      padding: 6px 14px; border-radius: 100px;
+      background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3);
+      font-size: 13px; font-weight: 500; color: var(--blue-l);
+      margin-bottom: 28px;
+      animation: fadeUp .6s ease both;
     }
-    .badge-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--green);
-      box-shadow: 0 0 8px rgba(34,197,94,0.5);
-      animation: pulse-dot 2s ease infinite;
+    .hero-badge .dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--blue);
+      animation: blink 2s ease infinite;
     }
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(34,197,94,0.5); }
-      50% { opacity: 0.6; box-shadow: 0 0 16px rgba(34,197,94,0.8); }
+    @keyframes blink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .5; transform: scale(.8); }
     }
 
     h1 {
-      font-size: clamp(44px, 7.5vw, 82px);
-      font-weight: 900; line-height: 1.02;
-      letter-spacing: -3px; margin-bottom: 28px;
-      animation: fadeUp 0.7s 0.1s ease both;
+      font-size: clamp(40px, 7vw, 80px);
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      animation: fadeUp .7s .1s ease both;
     }
+
     .gradient-text {
-      background: linear-gradient(135deg, #818cf8 0%, #a78bfa 30%, #22d3ee 70%, #34d399 100%);
-      background-size: 200% auto;
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      animation: gradient-shift 6s ease infinite;
-    }
-    @keyframes gradient-shift {
-      0%, 100% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #22d3ee 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .hero-sub {
-      font-size: clamp(17px, 2.2vw, 20px); color: var(--muted);
-      max-width: 520px; margin: 0 auto 44px;
-      font-weight: 400; line-height: 1.7;
-      animation: fadeUp 0.7s 0.2s ease both;
+      font-size: clamp(16px, 2.5vw, 20px);
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      animation: fadeUp .7s .2s ease both;
     }
+
     .hero-actions {
-      display: flex; align-items: center; justify-content: center;
-      gap: 14px; flex-wrap: wrap;
-      animation: fadeUp 0.7s 0.3s ease both;
+      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp .7s .3s ease both;
     }
+    .hero-actions .btn { padding: 13px 28px; font-size: 15px; border-radius: 12px; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to { opacity: 1; transform: translateY(0); }
+    .hero-icon {
+      width: 100px; height: 100px; border-radius: 22px;
+      margin-bottom: 28px;
+      box-shadow: 0 20px 60px rgba(59,130,246,.4), 0 0 0 1px rgba(255,255,255,.07);
+      animation: fadeUp .6s ease both, float 4s ease-in-out infinite 1s;
     }
-
-    /* ── Floating badges around hero ─────────────────────── */
-    .floating-badges {
-      position: absolute; inset: 0; pointer-events: none; z-index: 0;
-    }
-    .fbadge {
-      position: absolute;
-      background: rgba(255,255,255,0.04);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 14px;
-      padding: 10px 16px;
-      display: flex; align-items: center; gap: 8px;
-      font-size: 12px; font-weight: 600;
-      animation: float-badge 6s ease-in-out infinite;
-      white-space: nowrap;
-    }
-    .fbadge-icon { font-size: 16px; }
-    @keyframes float-badge {
+    @keyframes float {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-12px); }
-    }
-    .fb-1 { top: 22%; left: 5%; animation-delay: 0s; color: var(--green); }
-    .fb-2 { top: 35%; right: 4%; animation-delay: -2s; color: var(--orange); }
-    .fb-3 { bottom: 32%; left: 3%; animation-delay: -4s; color: var(--blue); }
-    .fb-4 { bottom: 18%; right: 6%; animation-delay: -1s; color: var(--accent); }
-
-    /* ── Phone mockup ────────────────────────────────────── */
-    .phone-wrap {
-      margin: 70px auto 0; width: fit-content;
-      animation: fadeUp 0.8s 0.45s ease both;
-      position: relative; perspective: 1000px;
-    }
-    .phone-glow {
-      position: absolute; inset: -60px;
-      background: radial-gradient(ellipse at 50% 50%, rgba(99,102,241,0.18) 0%, transparent 65%);
-      pointer-events: none;
-    }
-    .phone-glow-ring {
-      position: absolute; inset: -30px;
-      border-radius: 54px;
-      border: 1px solid rgba(99,102,241,0.15);
-      animation: ring-pulse 3s ease-in-out infinite;
-    }
-    @keyframes ring-pulse {
-      0%, 100% { opacity: 0.3; transform: scale(1); }
-      50% { opacity: 0.6; transform: scale(1.02); }
-    }
-    .phone {
-      width: 270px; background: #0a0a12;
-      border-radius: 42px;
-      border: 1.5px solid rgba(255,255,255,0.1);
-      overflow: hidden; position: relative;
-      box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04),
-        0 40px 100px rgba(0,0,0,0.8),
-        0 0 60px rgba(99,102,241,0.08),
-        inset 0 1px 0 rgba(255,255,255,0.08);
-      transform: rotateX(2deg);
-      transition: transform 0.5s;
-    }
-    .phone:hover { transform: rotateX(0deg) scale(1.02); }
-    .phone-notch { height: 30px; background: #0a0a12; display: flex; align-items: center; justify-content: center; }
-    .phone-notch-pill {
-      width: 72px; height: 7px;
-      background: rgba(255,255,255,0.12);
-      border-radius: 10px;
-    }
-    .phone-screen {
-      background: linear-gradient(170deg, #0f1225, #0d0f1e);
-      padding: 14px; min-height: 500px;
+      50% { transform: translateY(-8px); }
     }
 
-    .mini-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .mini-title { font-size: 14px; font-weight: 800; color: #f0f4ff; letter-spacing: -0.3px; }
-    .mini-dots { display: flex; gap: 6px; }
-    .mini-dot { width: 18px; height: 18px; border-radius: 6px; }
-
-    .mini-card {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 14px; padding: 10px 12px; margin-bottom: 8px;
-    }
-    .mini-stat-row { display: flex; gap: 6px; margin-bottom: 10px; }
-    .mini-stat {
-      flex: 1; background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 12px; padding: 10px 8px; text-align: center;
-    }
-    .mini-stat-val { font-size: 14px; font-weight: 800; letter-spacing: -0.5px; }
-    .mini-stat-lbl { font-size: 8px; color: rgba(255,255,255,0.35); margin-top: 2px; letter-spacing: 0.5px; text-transform: uppercase; }
-
-    .mini-bar-wrap { margin-top: 8px; }
-    .mini-bar-label { display: flex; justify-content: space-between; font-size: 8px; color: rgba(255,255,255,0.35); margin-bottom: 4px; }
-    .mini-bar { height: 7px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden; }
-    .mini-bar-fill { height: 100%; border-radius: 4px; }
-
-    .mini-trip-row {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .mini-trip-row:last-child { border-bottom: none; }
-    .mini-trip-icon {
-      width: 24px; height: 24px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; flex-shrink: 0;
-    }
-    .mini-trip-info { flex: 1; }
-    .mini-trip-title { font-size: 10px; font-weight: 700; color: #e2e8f0; }
-    .mini-trip-sub { font-size: 8px; color: rgba(255,255,255,0.3); margin-top: 1px; }
-    .mini-trip-val { font-size: 10px; font-weight: 800; }
-
-    .mini-tabs {
-      display: flex; background: rgba(0,0,0,0.35); padding: 8px 10px;
-      border-top: 1px solid rgba(255,255,255,0.05); margin-top: 10px;
-      border-radius: 0 0 14px 14px;
-    }
-    .mini-tab { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 7px; color: rgba(255,255,255,0.25); padding: 4px 0; }
-    .mini-tab.active { color: var(--accent); }
-    .mini-tab-icon { font-size: 13px; }
-
-    /* ── Marquee ──────────────────────────────────────────── */
-    .marquee-wrap {
-      padding: 40px 0;
-      border-top: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+    .stats {
+      display: flex;
+      max-width: 860px; width: 90%; margin: 56px auto 0;
+      background: rgba(15,32,64,.8);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      backdrop-filter: blur(12px);
       overflow: hidden;
-      position: relative; z-index: 1;
+      animation: fadeUp .7s .5s ease both;
     }
-    .marquee-wrap::before, .marquee-wrap::after {
-      content: ''; position: absolute; top: 0; bottom: 0; width: 120px; z-index: 2;
+    .stat {
+      flex: 1; text-align: center;
+      padding: 20px 16px;
+      border-right: 1px solid var(--border);
     }
-    .marquee-wrap::before { left: 0; background: linear-gradient(90deg, var(--bg), transparent); }
-    .marquee-wrap::after { right: 0; background: linear-gradient(-90deg, var(--bg), transparent); }
-    .marquee {
-      display: flex; gap: 40px; width: max-content;
-      animation: marquee 30s linear infinite;
-    }
-    .marquee-item {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 15px; font-weight: 600; color: var(--muted);
-      white-space: nowrap;
-    }
-    .marquee-item span { font-size: 20px; }
-    @keyframes marquee {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
+    .stat:last-child { border-right: none; }
+    .stat-num { font-size: clamp(22px, 4vw, 32px); font-weight: 800; color: var(--blue-l); display: block; }
+    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; display: block; margin-top: 2px; }
+
+    @media (max-width: 500px) {
+      .stats { display: grid; grid-template-columns: 1fr 1fr; }
+      .stat:nth-child(2) { border-right: none; }
+      .stat:nth-child(3),
+      .stat:nth-child(4) { border-top: 1px solid var(--border); }
+      .stat:nth-child(4) { border-right: none; }
+      .stat:nth-child(5) { grid-column: 1/-1; border-top: 1px solid var(--border); border-right: none; }
     }
 
-    /* ── Stats ────────────────────────────────────────────── */
-    .stats-section { padding: 80px 0; }
-    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-    .stat-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px; padding: 32px 20px;
-      text-align: center; position: relative; overflow: hidden;
-      transition: all 0.3s;
-    }
-    .stat-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-4px); }
-    .stat-card::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .stat-card:hover::after { opacity: 1; }
-    .stat-num {
-      font-size: 48px; font-weight: 900; letter-spacing: -3px; line-height: 1;
-      background: linear-gradient(135deg, var(--accent), var(--accent3));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .stat-label { font-size: 13px; color: var(--muted); margin-top: 8px; font-weight: 500; }
+    /* ─── SECTIONS ─── */
+    section { position: relative; z-index: 1; padding: 100px clamp(16px, 6vw, 80px); }
 
-    /* ── Features ─────────────────────────────────────────── */
-    .features { padding: 100px 0; }
     .section-label {
-      text-align: center; font-size: 12px; font-weight: 700;
-      letter-spacing: 3px; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 16px;
+      display: inline-flex; align-items: center; gap: 7px;
+      font-size: 12px; font-weight: 700; letter-spacing: .12em;
+      text-transform: uppercase; color: var(--blue-l);
+      margin-bottom: 14px;
     }
+
     h2 {
-      text-align: center;
-      font-size: clamp(34px, 5vw, 54px);
-      font-weight: 900; letter-spacing: -2px;
-      line-height: 1.08; margin-bottom: 16px;
+      font-size: clamp(28px, 4vw, 48px);
+      font-weight: 800; letter-spacing: -1px; line-height: 1.15;
+      margin-bottom: 16px;
     }
+
     .section-sub {
-      text-align: center; font-size: 17px; color: var(--muted);
-      max-width: 480px; margin: 0 auto 72px; line-height: 1.7;
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-    .feature-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 22px; padding: 32px 28px;
-      transition: all 0.35s; position: relative; overflow: hidden;
-      cursor: default;
-    }
-    .feature-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(circle at 30% 20%, rgba(99,102,241,0.06), transparent 70%);
-      opacity: 0; transition: opacity 0.35s;
-    }
-    .feature-card::after {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent 10%, var(--glow-color, rgba(99,102,241,0.5)) 50%, transparent 90%);
-      opacity: 0; transition: opacity 0.35s;
-    }
-    .feature-card:hover { transform: translateY(-6px); border-color: rgba(255,255,255,0.12); box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .feature-card:hover::before, .feature-card:hover::after { opacity: 1; }
-    .feature-icon {
-      width: 52px; height: 52px; border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 24px; margin-bottom: 20px;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .feature-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
-    .feature-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
-    .feature-tag {
-      display: inline-flex; align-items: center; margin-top: 16px;
-      font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 100px;
-      letter-spacing: 0.3px;
+      font-size: clamp(15px, 2vw, 17px);
+      color: var(--muted); max-width: 540px; margin-bottom: 56px;
     }
 
-    .fc-blue .feature-icon { background: rgba(59,130,246,0.1); }
-    .fc-blue .feature-tag { background: rgba(59,130,246,0.1); color: #60a5fa; }
-    .fc-blue { --glow-color: rgba(59,130,246,0.5); }
-    .fc-purple .feature-icon { background: rgba(139,92,246,0.1); }
-    .fc-purple .feature-tag { background: rgba(139,92,246,0.1); color: #a78bfa; }
-    .fc-purple { --glow-color: rgba(139,92,246,0.5); }
-    .fc-green .feature-icon { background: rgba(34,197,94,0.1); }
-    .fc-green .feature-tag { background: rgba(34,197,94,0.1); color: #4ade80; }
-    .fc-green { --glow-color: rgba(34,197,94,0.5); }
-    .fc-orange .feature-icon { background: rgba(249,115,22,0.1); }
-    .fc-orange .feature-tag { background: rgba(249,115,22,0.1); color: #fb923c; }
-    .fc-orange { --glow-color: rgba(249,115,22,0.5); }
-    .fc-cyan .feature-icon { background: rgba(6,182,212,0.1); }
-    .fc-cyan .feature-tag { background: rgba(6,182,212,0.1); color: #22d3ee; }
-    .fc-cyan { --glow-color: rgba(6,182,212,0.5); }
-    .fc-rose .feature-icon { background: rgba(244,63,94,0.1); }
-    .fc-rose .feature-tag { background: rgba(244,63,94,0.1); color: #fb7185; }
-    .fc-rose { --glow-color: rgba(244,63,94,0.5); }
-
-    /* ── Bento highlight ──────────────────────────────────── */
-    .bento { padding: 80px 0; }
-    .bento-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    .divider {
+      width: 100%; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--border), transparent);
     }
-    .bento-card {
-      background: var(--surface);
+
+    /* ─── CARDS ─── */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .fcard {
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 24px; padding: 36px 32px;
+      border-radius: 20px;
+      padding: 28px;
       position: relative; overflow: hidden;
-      transition: all 0.3s;
+      transition: transform .25s, box-shadow .25s, border-color .25s;
     }
-    .bento-card:hover { border-color: rgba(255,255,255,0.12); }
-    .bento-card.tall { grid-row: span 2; display: flex; flex-direction: column; justify-content: center; }
-    .bento-label {
-      font-size: 11px; font-weight: 700; letter-spacing: 2px;
-      text-transform: uppercase; margin-bottom: 12px;
+    .fcard:hover {
+      transform: translateY(-4px);
+      border-color: rgba(59,130,246,.4);
+      box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 0 1px rgba(59,130,246,.12);
     }
-    .bento-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 12px; line-height: 1.2; }
-    .bento-desc { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .fcard-glow {
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, var(--glow-color, #3b82f6), transparent);
+      opacity: .6;
+    }
+    .fcard-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 16px;
+    }
+    .fcard h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .fcard p { font-size: 14px; color: var(--muted); line-height: 1.6; }
+    .fcard ul { list-style: none; margin-top: 14px; }
+    .fcard ul li {
+      font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; gap: 7px; padding: 3px 0;
+    }
+    .fcard ul li::before {
+      content: '';
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--glow-color, var(--blue)); flex-shrink: 0;
+    }
 
-    .hv-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px; padding: 14px 18px;
+    /* ─── BIG FEATURE ─── */
+    .big-feature {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .big-feature.reverse { direction: rtl; }
+    .big-feature.reverse > * { direction: ltr; }
+    @media (max-width: 768px) {
+      .big-feature, .big-feature.reverse { grid-template-columns: 1fr; }
+    }
+    .big-feature .visual {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px; padding: 32px;
+      position: relative; overflow: hidden;
+    }
+    .big-feature .visual::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent, rgba(59,130,246,.15)) 0%, transparent 70%);
+    }
+
+    /* Mock screen */
+    .mock-screen {
+      background: #05101e; border-radius: 14px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.06);
+    }
+    .mock-top {
+      display: flex; gap: 6px; padding: 12px 14px 8px;
+      background: #08162b; border-bottom: 1px solid rgba(255,255,255,.05);
+    }
+    .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mock-body { padding: 16px; }
+    .mock-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 12px; border-radius: 10px;
+      background: rgba(59,130,246,.07);
+      border: 1px solid rgba(59,130,246,.1); margin-bottom: 8px;
+    }
+    .mock-row-l { display: flex; align-items: center; gap: 10px; }
+    .mock-title { font-weight: 600; color: #e0eaff; font-size: 12px; }
+    .mock-sub { color: var(--muted); font-size: 11px; }
+    .mock-val { font-size: 12px; font-weight: 700; color: var(--blue-l); }
+    .mock-chart {
+      margin-top: 12px; display: flex; align-items: flex-end; gap: 6px;
+      height: 60px; padding: 0 4px;
+    }
+    .mock-bar {
+      flex: 1; border-radius: 4px 4px 0 0;
+      background: linear-gradient(180deg, var(--blue-l), var(--blue-d));
+      opacity: .85;
+      animation: barGrow .8s ease both;
+    }
+    @keyframes barGrow {
+      from { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
+      to { transform: scaleY(1); transform-origin: bottom; opacity: .85; }
+    }
+
+    /* Tags */
+    .tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 6px;
+      font-size: 12px; font-weight: 600;
+      background: rgba(59,130,246,.12); color: var(--blue-l);
+      border: 1px solid rgba(59,130,246,.2);
+    }
+    .tag.green  { background: rgba(52,211,153,.1);  color: #34d399; border-color: rgba(52,211,153,.2); }
+    .tag.orange { background: rgba(251,146,60,.1);  color: #fb923c; border-color: rgba(251,146,60,.2); }
+    .tag.purple { background: rgba(167,139,250,.1); color: #a78bfa; border-color: rgba(167,139,250,.2); }
+    .tag.rose   { background: rgba(251,113,133,.1); color: #fb7185; border-color: rgba(251,113,133,.2); }
+    .tag.cyan   { background: rgba(34,211,238,.1);  color: #22d3ee; border-color: rgba(34,211,238,.2); }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+
+    /* Achievements */
+    .achievements {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .ach-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px;
       display: flex; align-items: center; gap: 14px;
-      transition: all 0.3s; margin-top: 12px;
+      transition: transform .2s, border-color .2s;
     }
-    .hv-card:hover { background: rgba(255,255,255,0.06); transform: translateX(4px); }
-    .hv-card-icon {
-      width: 40px; height: 40px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; flex-shrink: 0;
-    }
-    .hv-card-text { flex: 1; }
-    .hv-card-title { font-size: 14px; font-weight: 600; }
-    .hv-card-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-    .hv-card-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; flex-shrink: 0; }
-    .hv-progress { margin-top: 8px; }
-    .hv-progress-bar { height: 5px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-    .hv-progress-fill { height: 100%; border-radius: 3px; }
+    .ach-card:hover { transform: translateY(-3px); border-color: rgba(251,191,36,.35); }
+    .ach-emoji { font-size: 28px; flex-shrink: 0; }
+    .ach-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .ach-desc { font-size: 11px; color: var(--muted); }
 
-    .check-list { list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
-    .check-list li { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.7); }
-    .check-icon {
-      width: 22px; height: 22px; border-radius: 7px;
-      background: rgba(34,197,94,0.12);
+    /* Install */
+    .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 600px) { .install-grid { grid-template-columns: 1fr; } }
+    .install-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 32px; text-align: center;
+    }
+    .install-os { font-size: 40px; margin-bottom: 14px; }
+    .install-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
+    .install-card p { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+    .steps { text-align: left; list-style: none; counter-reset: steps; }
+    .steps li {
+      counter-increment: steps;
+      display: flex; align-items: flex-start; gap: 12px;
+      font-size: 13px; color: var(--muted); margin-bottom: 10px;
+    }
+    .steps li::before {
+      content: counter(steps);
+      width: 22px; height: 22px; border-radius: 50%;
+      background: rgba(59,130,246,.2); color: var(--blue-l);
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; font-size: 11px; color: var(--green);
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
     }
 
-    /* ── CTA ──────────────────────────────────────────────── */
-    .cta-section { padding: 100px 0 120px; text-align: center; }
-    .cta-box {
-      background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(6,182,212,0.06));
-      border: 1px solid rgba(99,102,241,0.15);
-      border-radius: 32px; padding: 72px 48px;
+    /* CTA */
+    .cta-block {
+      background: linear-gradient(135deg, rgba(29,78,216,.3) 0%, rgba(91,33,182,.3) 100%);
+      border: 1px solid rgba(59,130,246,.25); border-radius: 28px;
+      text-align: center; padding: 72px clamp(20px, 6vw, 80px);
       position: relative; overflow: hidden;
     }
-    .cta-box::before {
-      content: ''; position: absolute; top: -100px; left: 50%; transform: translateX(-50%);
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(99,102,241,0.12), transparent 65%);
-      pointer-events: none;
+    .cta-block::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 80% at 50% -20%, rgba(59,130,246,.25) 0%, transparent 70%);
     }
-    .cta-box h2 { margin-bottom: 16px; }
-    .cta-box p { color: var(--muted); font-size: 17px; margin-bottom: 40px; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.7; }
-    .cta-actions { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .cta-block h2, .cta-block p, .cta-block .hero-actions { position: relative; }
+    .cta-block p { color: var(--muted); max-width: 500px; margin: 0 auto 32px; }
 
-    /* ── Footer ───────────────────────────────────────────── */
-    footer { border-top: 1px solid var(--border); padding: 32px 0; }
-    .footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .footer-copy { font-size: 13px; color: var(--muted); }
-    .footer-links { display: flex; gap: 24px; }
-    .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
-    .footer-links a:hover { color: var(--text); }
+    /* Footer */
+    footer {
+      position: relative; z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 32px clamp(16px, 6vw, 80px);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 8px; }
+    .footer-logo img { width: 28px; height: 28px; border-radius: 7px; }
+    .footer-logo span { font-size: 13px; font-weight: 600; }
+    footer p { font-size: 12px; color: var(--muted); }
+    footer a { color: var(--muted); text-decoration: none; font-size: 12px; }
+    footer a:hover { color: var(--text); }
 
-    /* ── Reveal ───────────────────────────────────────────── */
-    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
     .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
 
-    /* ── Mobile ───────────────────────────────────────────── */
-    @media (max-width: 900px) {
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .bento-grid { grid-template-columns: 1fr; }
-      .bento-card.tall { grid-row: span 1; }
-      .floating-badges { display: none; }
-    }
-    @media (max-width: 640px) {
-      .hero { padding: 120px 0 50px; }
-      .phone { width: 230px; }
-      .features-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .footer-inner { flex-direction: column; text-align: center; }
-      nav { top: 8px; width: calc(100% - 16px); padding: 10px 16px; }
-    }
+    /* Donut */
+    .donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
+    .donut-legend { flex: 1; min-width: 160px; }
+    .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: rgba(59,130,246,.3); border-radius: 10px; }
   </style>
 </head>
 <body>
 
-<div class="grid-bg"></div>
-<div class="orb-canvas">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-  <div class="orb orb-3"></div>
-</div>
-
-<!-- Nav -->
-<nav id="nav">
-  <div class="nav-inner">
-    <a href="#" class="logo"><div class="logo-icon">⛽</div>Fuel<span>Plus</span></a>
-    <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">Отвори приложението</a>
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">
+    <img src="https://fuel-web-app-beta.vercel.app/icon-192.png" alt="Разход на гориво" />
+    <span>Разход на гориво</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Функции</a>
+    <a href="#maintenance">Поддръжка</a>
+    <a href="#expenses">Разходи</a>
+    <a href="#reports">Отчети</a>
+    <a href="#install">Инсталиране</a>
   </div>
+  <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">Отвори приложението →</a>
 </nav>
 
-<!-- Hero -->
+<!-- HERO -->
 <section class="hero">
-  <div class="floating-badges">
-    <div class="fbadge fb-1"><span class="fbadge-icon">⛽</span> 6.4 л/100км</div>
-    <div class="fbadge fb-2"><span class="fbadge-icon">🔔</span> Изтича след 12 дни</div>
-    <div class="fbadge fb-3"><span class="fbadge-icon">🗺️</span> София → Варна</div>
-    <div class="fbadge fb-4"><span class="fbadge-icon">🏆</span> Нов рекорд!</div>
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+
+  <img class="hero-icon" src="https://fuel-web-app-beta.vercel.app/icon-512.png" alt="Икона" />
+
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Безплатно · Работи офлайн · За iOS и Android
   </div>
 
-  <div class="wrap">
-    <div class="badge"><span class="badge-dot"></span> Безплатно &bull; PWA &bull; Без регистрация</div>
-    <h1>Умен контрол на<br><span class="gradient-text">горивото и колата</span></h1>
-    <p class="hero-sub">Проследявай разходите, поддръжката и пътуванията на всичките си автомобили — в едно красиво приложение.</p>
-    <div class="hero-actions">
-      <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary btn-big">🚀 Стартирай безплатно</a>
-      <a href="#features" class="btn btn-ghost btn-big">Виж функциите ↓</a>
+  <h1>Управлявай<br/><span class="gradient-text">автомобила си</span><br/>интелигентно.</h1>
+
+  <p class="hero-sub">
+    Проследявай гориво, пътувания, разходи и поддръжка — всичко на едно място, прецизно и красиво.
+  </p>
+
+  <div class="hero-actions">
+    <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Отвори приложението
+    </a>
+    <a href="#install" class="btn btn-ghost">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
+      Инсталирай
+    </a>
+  </div>
+
+  <div class="stats reveal">
+    <div class="stat"><span class="stat-num">5</span><span class="stat-label">раздела</span></div>
+    <div class="stat"><span class="stat-num">30+</span><span class="stat-label">функции</span></div>
+    <div class="stat"><span class="stat-num">9</span><span class="stat-label">категории разходи</span></div>
+    <div class="stat"><span class="stat-num">7</span><span class="stat-label">постижения</span></div>
+    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">поверителност</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal">
+    <div class="section-label">Всичко необходимо</div>
+    <h2>Пълен контрол върху<br/><span class="gradient-text">всяко пътуване</span></h2>
+    <p class="section-sub">От заредено гориво до следващата смяна на маслото — следи всичко, без усилия.</p>
+  </div>
+
+  <div class="feature-grid">
+    <div class="fcard reveal" style="--glow-color:#3b82f6">
+      <div class="fcard-glow"></div>
+      <div class="fcard-icon" style="background:rgba(59,130,246,.12)">⛽</div>
+      <h3>Проследяване на пътувания</h3>
+      <p>GPS проследяване в реално време с автоматично изчисление на разстоянието чрез Haversine формулата.</p>
+      <ul>
+        <li>Запис на одометър и снимка</li>
+        <li>Количество и вид гориво</li>
+        <li>Цена на литър и бонон</li>
+        <li>Брой пасажери</li>
+      </ul>
     </div>
 
-    <div class="phone-wrap">
-      <div class="phone-glow"></div>
-      <div class="phone-glow-ring"></div>
-      <div class="phone">
-        <div class="phone-notch"><div class="phone-notch-pill"></div></div>
-        <div class="phone-screen">
-          <div class="mini-header">
-            <span class="mini-title">Разход на гориво</span>
-            <div class="mini-dots"><div class="mini-dot" style="background:var(--accent)"></div><div class="mini-dot" style="background:rgba(255,255,255,0.08)"></div></div>
-          </div>
-          <div class="mini-stat-row">
-            <div class="mini-stat"><div class="mini-stat-val" style="color:#6366f1">12 450</div><div class="mini-stat-lbl">общо км</div></div>
-            <div class="mini-stat"><div class="mini-stat-val" style="color:#f97316">847</div><div class="mini-stat-lbl">разходи &euro;</div></div>
-            <div class="mini-stat"><div class="mini-stat-val" style="color:#22c55e">6.8</div><div class="mini-stat-lbl">л/100км</div></div>
-          </div>
-          <div class="mini-card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-              <span style="font-size:9px;font-weight:700;color:#f97316">⚡ Смяна на масло</span>
-              <span style="font-size:8px;color:rgba(255,255,255,0.3)">BMW 320i</span>
+    <div class="fcard reveal" style="--glow-color:#22d3ee">
+      <div class="fcard-glow" style="--glow-color:#22d3ee"></div>
+      <div class="fcard-icon" style="background:rgba(34,211,238,.1)">📊</div>
+      <h3>Анализ на разхода</h3>
+      <p>Цветно кодиран стълбовиден график за последните 8 пътувания с линия за средна стойност.</p>
+      <ul>
+        <li>Зелено — под 6 л/100 км</li>
+        <li>Оранжево — 6–9 л/100 км</li>
+        <li>Червено — над 9 л/100 км</li>
+        <li>Спидометър визуализация</li>
+      </ul>
+    </div>
+
+    <div class="fcard reveal" style="--glow-color:#a78bfa">
+      <div class="fcard-glow" style="--glow-color:#a78bfa"></div>
+      <div class="fcard-icon" style="background:rgba(167,139,250,.1)">🚗</div>
+      <h3>Управление на автомобили</h3>
+      <p>Поддръжка на множество автомобили с изолирани данни — марка, модел, година, застраховка.</p>
+      <ul>
+        <li>Снимка на автомобила</li>
+        <li>Напомняне за смяна на масло</li>
+        <li>Сравнителни метрики</li>
+        <li>Текуща стойност и км/год</li>
+      </ul>
+    </div>
+
+    <div class="fcard reveal" style="--glow-color:#34d399">
+      <div class="fcard-glow" style="--glow-color:#34d399"></div>
+      <div class="fcard-icon" style="background:rgba(52,211,153,.1)">🔧</div>
+      <h3>Поддръжка и документи</h3>
+      <p>Следи всички важни дати — винетка, застраховка, технически преглед — с цветно кодирани предупреждения.</p>
+      <ul>
+        <li>5 категории поддръжка</li>
+        <li>Проследяване на щети</li>
+        <li>Сканиране и съхранение на документи</li>
+        <li>Шофьорска книжка и каско</li>
+      </ul>
+    </div>
+
+    <div class="fcard reveal" style="--glow-color:#fb923c">
+      <div class="fcard-glow" style="--glow-color:#fb923c"></div>
+      <div class="fcard-icon" style="background:rgba(251,146,60,.1)">💰</div>
+      <h3>Разходи и анализ</h3>
+      <p>9 категории разходи с диаграма, повтарящи се плащания и специален калкулатор.</p>
+      <ul>
+        <li>Ремонт, паркинг, глоби, винетка</li>
+        <li>Напомняне за глоби (50% отстъпка)</li>
+        <li>Продай или поправи? — калкулатор</li>
+        <li>Месечни тенденции</li>
+      </ul>
+    </div>
+
+    <div class="fcard reveal" style="--glow-color:#fb7185">
+      <div class="fcard-glow" style="--glow-color:#fb7185"></div>
+      <div class="fcard-icon" style="background:rgba(251,113,133,.1)">📄</div>
+      <h3>Отчети и резервни копия</h3>
+      <p>Генерирай PDF отчети, архивирай данните си и ги сподели чрез QR код.</p>
+      <ul>
+        <li>Месечни и годишни отчети</li>
+        <li>Данъчен отчет</li>
+        <li>Wrapped — годишен преглед</li>
+        <li>Пълен backup и restore</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- DASHBOARD -->
+<section id="dashboard">
+  <div class="big-feature reveal">
+    <div class="content">
+      <div class="section-label">Начало</div>
+      <h2>Всичко важно<br/><span class="gradient-text">на един екран</span></h2>
+      <p class="section-sub">Реалновременни данни за цени на горивото, история на пътуванията и графики за разход.</p>
+
+      <div class="tags">
+        <span class="tag">GPS проследяване</span>
+        <span class="tag cyan">Sparkline графика</span>
+        <span class="tag green">Разход л/100 км</span>
+        <span class="tag purple">Множество коли</span>
+      </div>
+
+      <div class="feature-grid" style="grid-template-columns:1fr 1fr;gap:12px">
+        <div class="fcard" style="padding:18px;--glow-color:#3b82f6">
+          <div class="fcard-icon" style="background:rgba(59,130,246,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">📈</div>
+          <h3 style="font-size:14px">Цени на горивото</h3>
+          <p style="font-size:12px">Мин / Макс / Средно за последните 12 зареждания</p>
+        </div>
+        <div class="fcard" style="padding:18px;--glow-color:#22d3ee">
+          <div class="fcard-icon" style="background:rgba(34,211,238,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">🗺️</div>
+          <h3 style="font-size:14px">Маршрутна карта</h3>
+          <p style="font-size:12px">GPS точки на реалния маршрут, визуализирани на карта</p>
+        </div>
+        <div class="fcard" style="padding:18px;--glow-color:#34d399">
+          <div class="fcard-icon" style="background:rgba(52,211,153,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">🏆</div>
+          <h3 style="font-size:14px">Постижения</h3>
+          <p style="font-size:12px">7 разблокируеми награди за км и пътувания</p>
+        </div>
+        <div class="fcard" style="padding:18px;--glow-color:#fb923c">
+          <div class="fcard-icon" style="background:rgba(251,146,60,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">💡</div>
+          <h3 style="font-size:14px">AI съвети</h3>
+          <p style="font-size:12px">Контекстни препоръки за пестене на гориво</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual" style="--accent:rgba(59,130,246,.15)">
+      <div class="mock-screen">
+        <div class="mock-top">
+          <div class="mock-dot" style="background:#ef4444"></div>
+          <div class="mock-dot" style="background:#f59e0b"></div>
+          <div class="mock-dot" style="background:#10b981"></div>
+        </div>
+        <div class="mock-body">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px">НАЧАЛЕН ПАНЕЛ</div>
+          <div class="mock-row">
+            <div class="mock-row-l">
+              <span style="font-size:18px">⛽</span>
+              <div><div class="mock-title">Активно пътуване</div><div class="mock-sub">48.3 км · 1:23 ч</div></div>
             </div>
-            <div class="mini-bar-wrap">
-              <div class="mini-bar-label"><span>0</span><span style="color:#f97316;font-weight:700">2 100 км</span><span>10 000</span></div>
-              <div class="mini-bar"><div class="mini-bar-fill" style="width:79%;background:linear-gradient(90deg,#22c55e,#f97316)"></div></div>
-            </div>
+            <span class="mock-val" style="color:#34d399">● Активно</span>
           </div>
-          <div class="mini-card" style="padding:8px 12px">
-            <div style="font-size:8px;font-weight:800;color:rgba(255,255,255,0.4);margin-bottom:5px;text-transform:uppercase;letter-spacing:1.5px">История</div>
-            <div class="mini-trip-row">
-              <div class="mini-trip-icon" style="background:rgba(99,102,241,0.15)">🛣️</div>
-              <div class="mini-trip-info"><div class="mini-trip-title">София → Варна</div><div class="mini-trip-sub">450 км &bull; 6.4 л/100км</div></div>
-              <div class="mini-trip-val" style="color:#f97316">62.40&euro;</div>
+          <div class="mock-row">
+            <div class="mock-row-l">
+              <span style="font-size:18px">💧</span>
+              <div><div class="mock-title">Цена на горивото</div><div class="mock-sub">↑ +0.04 лв от миналия път</div></div>
             </div>
-            <div class="mini-trip-row">
-              <div class="mini-trip-icon" style="background:rgba(34,197,94,0.15)">⛽</div>
-              <div class="mini-trip-info"><div class="mini-trip-title">Градско пътуване</div><div class="mini-trip-sub">85 км &bull; 7.2 л/100км</div></div>
-              <div class="mini-trip-val" style="color:#f97316">11.20&euro;</div>
-            </div>
+            <span class="mock-val">2.38 лв</span>
           </div>
-          <div class="mini-tabs">
-            <div class="mini-tab active"><span class="mini-tab-icon">🏠</span>Начало</div>
-            <div class="mini-tab"><span class="mini-tab-icon">🔧</span>Поддръжка</div>
-            <div class="mini-tab"><span class="mini-tab-icon">🗺️</span>Карта</div>
-            <div class="mini-tab"><span class="mini-tab-icon">💰</span>Разходи</div>
-            <div class="mini-tab"><span class="mini-tab-icon">📊</span>Отчети</div>
+          <div class="mock-row">
+            <div class="mock-row-l">
+              <span style="font-size:18px">📊</span>
+              <div><div class="mock-title">Среден разход</div><div class="mock-sub">последните 8 пътувания</div></div>
+            </div>
+            <span class="mock-val" style="color:#34d399">5.8 л/100</span>
+          </div>
+          <div class="mock-chart">
+            <div class="mock-bar" style="height:45%;animation-delay:.0s"></div>
+            <div class="mock-bar" style="height:60%;animation-delay:.1s"></div>
+            <div class="mock-bar" style="height:35%;animation-delay:.2s"></div>
+            <div class="mock-bar" style="height:75%;animation-delay:.3s"></div>
+            <div class="mock-bar" style="height:50%;animation-delay:.4s"></div>
+            <div class="mock-bar" style="height:65%;animation-delay:.5s;background:linear-gradient(180deg,#34d399,#059669)"></div>
+            <div class="mock-bar" style="height:40%;animation-delay:.6s"></div>
+            <div class="mock-bar" style="height:55%;animation-delay:.7s"></div>
           </div>
         </div>
       </div>
@@ -623,165 +672,315 @@
   </div>
 </section>
 
-<!-- Marquee -->
-<div class="marquee-wrap">
-  <div class="marquee">
-    <div class="marquee-item"><span>🚗</span> Множество коли</div>
-    <div class="marquee-item"><span>⛽</span> 5 типа гориво</div>
-    <div class="marquee-item"><span>📊</span> Графики</div>
-    <div class="marquee-item"><span>⚡</span> Смяна на масло</div>
-    <div class="marquee-item"><span>🔔</span> Нотификации</div>
-    <div class="marquee-item"><span>🗺️</span> GPS проследяване</div>
-    <div class="marquee-item"><span>💰</span> Разходи</div>
-    <div class="marquee-item"><span>🌙</span> Тъмен режим</div>
-    <div class="marquee-item"><span>🎨</span> 5 цветни теми</div>
-    <div class="marquee-item"><span>🚨</span> Глоби</div>
-    <div class="marquee-item"><span>📱</span> PWA</div>
-    <div class="marquee-item"><span>🏆</span> Постижения</div>
-    <div class="marquee-item"><span>🔄</span> Сравнение на коли</div>
-    <div class="marquee-item"><span>📤</span> Сподели пътуване</div>
-    <!-- duplicate for seamless loop -->
-    <div class="marquee-item"><span>🚗</span> Множество коли</div>
-    <div class="marquee-item"><span>⛽</span> 5 типа гориво</div>
-    <div class="marquee-item"><span>📊</span> Графики</div>
-    <div class="marquee-item"><span>⚡</span> Смяна на масло</div>
-    <div class="marquee-item"><span>🔔</span> Нотификации</div>
-    <div class="marquee-item"><span>🗺️</span> GPS проследяване</div>
-    <div class="marquee-item"><span>💰</span> Разходи</div>
-    <div class="marquee-item"><span>🌙</span> Тъмен режим</div>
-    <div class="marquee-item"><span>🎨</span> 5 цветни теми</div>
-    <div class="marquee-item"><span>🚨</span> Глоби</div>
-    <div class="marquee-item"><span>📱</span> PWA</div>
-    <div class="marquee-item"><span>🏆</span> Постижения</div>
-  </div>
-</div>
+<div class="divider"></div>
 
-<!-- Stats -->
-<section class="stats-section">
-  <div class="wrap">
-    <div class="stats-grid">
-      <div class="stat-card reveal"><div class="stat-num">5+</div><div class="stat-label">Типа гориво</div></div>
-      <div class="stat-card reveal reveal-delay-1"><div class="stat-num">&infin;</div><div class="stat-label">Коли в профила</div></div>
-      <div class="stat-card reveal reveal-delay-2"><div class="stat-num">100%</div><div class="stat-label">Безплатно завинаги</div></div>
-      <div class="stat-card reveal reveal-delay-3"><div class="stat-num">0</div><div class="stat-label">Регистрации нужни</div></div>
-    </div>
-  </div>
-</section>
+<!-- MAINTENANCE -->
+<section id="maintenance">
+  <div class="big-feature reverse reveal">
+    <div class="content">
+      <div class="section-label">Поддръжка</div>
+      <h2>Никога не<br/><span class="gradient-text">пропускай важна дата</span></h2>
+      <p class="section-sub">Цветно кодирани предупреждения за всички документи и технически срокове.</p>
 
-<!-- Features -->
-<section class="features" id="features">
-  <div class="wrap">
-    <p class="section-label reveal">Функционалности</p>
-    <h2 class="reveal reveal-delay-1">Всичко за твоя автомобил</h2>
-    <p class="section-sub reveal reveal-delay-2">От зареждане до глоби — пълен набор инструменти за умен шофьор.</p>
-
-    <div class="features-grid">
-      <div class="feature-card fc-blue reveal"><div class="feature-icon">🚗</div><div class="feature-title">Множество коли</div><div class="feature-desc">Добави неограничен брой автомобили с марка, модел, година, снимка и тип гориво.</div><span class="feature-tag">Ново ✦</span></div>
-      <div class="feature-card fc-purple reveal reveal-delay-1"><div class="feature-icon">📊</div><div class="feature-title">Подробни отчети</div><div class="feature-desc">Графики на разхода, история на пътуванията, анализ по месеци и тип гориво.</div><span class="feature-tag">Аналитика</span></div>
-      <div class="feature-card fc-orange reveal reveal-delay-2"><div class="feature-icon">⚡</div><div class="feature-title">Напомняне за масло</div><div class="feature-desc">Въведи интервала за смяна и виж прогрес бар в реално време. Никога не пропускай.</div><span class="feature-tag">Ново ✦</span></div>
-      <div class="feature-card fc-green reveal"><div class="feature-icon">⛽</div><div class="feature-title">Тип гориво</div><div class="feature-desc">Бензин, дизел, газ, електро, хибрид — за всяко пътуване и всяка кола.</div><span class="feature-tag">Пълна поддръжка</span></div>
-      <div class="feature-card fc-rose reveal reveal-delay-1"><div class="feature-icon">🚨</div><div class="feature-title">Управление на глоби</div><div class="feature-desc">Краен срок, напомняне за 50% отстъпка в 7 дни, статус Платена/Неплатена.</div><span class="feature-tag">Ново ✦</span></div>
-      <div class="feature-card fc-cyan reveal reveal-delay-2"><div class="feature-icon">🔔</div><div class="feature-title">Нотификации</div><div class="feature-desc">Push известия за изтичащи документи — винетка, каско, ТП, шофьорска книжка.</div><span class="feature-tag">PWA</span></div>
-      <div class="feature-card fc-blue reveal"><div class="feature-icon">🗺️</div><div class="feature-title">Умен планировчик</div><div class="feature-desc">Въведи начало и край — получи литри, цена и разстояние автоматично.</div><span class="feature-tag">GPS</span></div>
-      <div class="feature-card fc-purple reveal reveal-delay-1"><div class="feature-icon">💰</div><div class="feature-title">Разходи и анализ</div><div class="feature-desc">Ремонти, паркинг, магистрала, миене — с пай-чарт анализ по категории.</div><span class="feature-tag">Финанси</span></div>
-      <div class="feature-card fc-cyan reveal"><div class="feature-icon">🔄</div><div class="feature-title">Сравнение на колите</div><div class="feature-desc">Виж коя кола е по-ефективна — разход, цена/км и общи разходи в директно сравнение.</div><span class="feature-tag">Ново ✦</span></div>
-      <div class="feature-card fc-rose reveal reveal-delay-1"><div class="feature-icon">📤</div><div class="feature-title">Сподели пътуване</div><div class="feature-desc">Генерирай красив текст с данните от пътуването и го сподели в Viber, Instagram или друго приложение.</div><span class="feature-tag">Ново ✦</span></div>
-      <div class="feature-card fc-green reveal reveal-delay-2"><div class="feature-icon">🌙</div><div class="feature-title">Теми и режими</div><div class="feature-desc">5 цветни теми, тъмен и светъл режим. Изглежда перфектно на всяко устройство.</div><span class="feature-tag">5 теми</span></div>
-    </div>
-  </div>
-</section>
-
-<!-- Bento -->
-<section class="bento">
-  <div class="wrap">
-    <div class="bento-grid">
-      <div class="bento-card tall reveal">
-        <div class="bento-label" style="color:var(--orange)">Поддръжка</div>
-        <div class="bento-title">Винаги знай кога<br>трябва нещо</div>
-        <div class="bento-desc">Цялостна система за проследяване.</div>
-        <ul class="check-list">
-          <li><div class="check-icon">✓</div>Смени на масло, гуми, застраховки</li>
-          <li><div class="check-icon">✓</div>Прогрес бар за км до следваща смяна</li>
-          <li><div class="check-icon">✓</div>Дигитален портфейл за документи</li>
-          <li><div class="check-icon">✓</div>Известия за изтичащи документи</li>
-        </ul>
+      <div class="tags">
+        <span class="tag rose">Изтекъл</span>
+        <span class="tag orange">&lt; 30 дни</span>
+        <span class="tag" style="color:#eab308;background:rgba(234,179,8,.1);border-color:rgba(234,179,8,.2)">&lt; 90 дни</span>
+        <span class="tag green">В ред</span>
       </div>
-      <div class="bento-card reveal reveal-delay-1">
-        <div class="hv-card" style="margin-top:0">
-          <div class="hv-card-icon" style="background:rgba(249,115,22,0.12)">⚡</div>
-          <div class="hv-card-text"><div class="hv-card-title">Смяна на масло</div><div class="hv-card-sub">BMW 320i &bull; Остават 2 100 км</div><div class="hv-progress"><div class="hv-progress-bar"><div class="hv-progress-fill" style="width:79%;background:linear-gradient(90deg,#22c55e,#f97316)"></div></div></div></div>
-          <div class="hv-card-badge" style="background:rgba(249,115,22,0.1);color:#fb923c">79%</div>
+
+      <ul style="list-style:none">
+        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🛡️</span> Гражданска отговорност</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🔍</span> Технически преглед</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🛣️</span> Винетка</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🚗</span> Каско застраховка</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted)"><span style="font-size:18px">📋</span> Шофьорска книжка</li>
+      </ul>
+    </div>
+
+    <div class="visual" style="--accent:rgba(52,211,153,.12)">
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px">🛡️</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Гражданска застраховка</div><div style="font-size:11px;color:var(--muted)">Изтича на 15.04.2026</div></div>
+          <span class="tag rose" style="font-size:10px">Изтекла!</span>
         </div>
-        <div class="hv-card">
-          <div class="hv-card-icon" style="background:rgba(34,197,94,0.12)">🛡️</div>
-          <div class="hv-card-text"><div class="hv-card-title">Гражданска застраховка</div><div class="hv-card-sub">Изтича след 45 дни</div></div>
-          <div class="hv-card-badge" style="background:rgba(234,179,8,0.1);color:#facc15">45 дни</div>
+        <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px">🔍</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Технически преглед</div><div style="font-size:11px;color:var(--muted)">Изтича на 28.04.2026</div></div>
+          <span class="tag orange" style="font-size:10px">15 дни</span>
         </div>
-      </div>
-      <div class="bento-card reveal reveal-delay-2">
-        <div class="hv-card" style="margin-top:0">
-          <div class="hv-card-icon" style="background:rgba(59,130,246,0.12)">🔍</div>
-          <div class="hv-card-text"><div class="hv-card-title">Технически преглед</div><div class="hv-card-sub">Изтича след 180 дни</div></div>
-          <div class="hv-card-badge" style="background:rgba(34,197,94,0.1);color:#4ade80">OK</div>
+        <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:22px">🛣️</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:600">Винетка</div><div style="font-size:11px;color:var(--muted)">Изтича на 01.01.2027</div></div>
+          <span class="tag green" style="font-size:10px">В ред</span>
         </div>
-        <div class="hv-card">
-          <div class="hv-card-icon" style="background:rgba(244,63,94,0.12)">🚨</div>
-          <div class="hv-card-text"><div class="hv-card-title">Глоба от КАТ — 45&euro;</div><div class="hv-card-sub">Плати до 15.04 &bull; -50% в 7 дни</div></div>
-          <div class="hv-card-badge" style="background:rgba(244,63,94,0.1);color:#fb7185">Неплатена</div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px">
+          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Смяна на масло</div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+            <span style="font-size:12px;color:var(--muted)">Изминати</span>
+            <span style="font-size:12px;font-weight:700;color:var(--blue-l)">87 420 км</span>
+          </div>
+          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden">
+            <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--blue),#22d3ee);border-radius:4px"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:5px">
+            <span style="font-size:10px;color:var(--muted)">Следваща: 90 000 км</span>
+            <span style="font-size:10px;color:var(--orange)">2 580 км остават</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
+
+<div class="divider"></div>
+
+<!-- EXPENSES -->
+<section id="expenses">
+  <div class="big-feature reveal">
+    <div class="content">
+      <div class="section-label">Разходи</div>
+      <h2>Знай накъде<br/><span class="gradient-text">отиват парите ти</span></h2>
+      <p class="section-sub">9 категории разходи с пай диаграма, повтарящи се плащания и калкулатор „Продай или поправи?"</p>
+
+      <div class="feature-grid" style="grid-template-columns:1fr 1fr;gap:10px;margin-top:0">
+        <div class="fcard" style="padding:14px 16px;--glow-color:#fb923c"><span style="font-size:16px">🔧</span><h3 style="font-size:13px;margin-top:8px">Ремонт</h3></div>
+        <div class="fcard" style="padding:14px 16px;--glow-color:#22d3ee"><span style="font-size:16px">✨</span><h3 style="font-size:13px;margin-top:8px">Автомивка</h3></div>
+        <div class="fcard" style="padding:14px 16px;--glow-color:#94a3b8"><span style="font-size:16px">🅿️</span><h3 style="font-size:13px;margin-top:8px">Паркинг</h3></div>
+        <div class="fcard" style="padding:14px 16px;--glow-color:#eab308"><span style="font-size:16px">🛣️</span><h3 style="font-size:13px;margin-top:8px">Магистрала</h3></div>
+        <div class="fcard" style="padding:14px 16px;--glow-color:#ef4444"><span style="font-size:16px">⚠️</span><h3 style="font-size:13px;margin-top:8px">Глоби</h3></div>
+        <div class="fcard" style="padding:14px 16px;--glow-color:#3b82f6"><span style="font-size:16px">🛡️</span><h3 style="font-size:13px;margin-top:8px">Застраховка</h3></div>
+      </div>
+
+      <div style="margin-top:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:14px;padding:16px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">💡</span>
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#fbbf24">50% отстъпка при глоби</div>
+            <div style="font-size:12px;color:var(--muted)">Приложението автоматично изчислява крайния срок и те предупреждава навреме</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual" style="--accent:rgba(251,146,60,.12)">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Разпределение на разходите</div>
+      <div class="donut-wrap">
+        <svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0">
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#1a2a4a" stroke-width="22"/>
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#fb923c" stroke-width="22" stroke-dasharray="103 243" stroke-dashoffset="-30" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#3b82f6" stroke-width="22" stroke-dasharray="73 273" stroke-dashoffset="-133" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#34d399" stroke-width="22" stroke-dasharray="55 291" stroke-dashoffset="-206" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#a78bfa" stroke-width="22" stroke-dasharray="40 306" stroke-dashoffset="-261" transform="rotate(-90 70 70)"/>
+          <circle cx="70" cy="70" r="55" fill="none" stroke="#fb7185" stroke-width="22" stroke-dasharray="28 318" stroke-dashoffset="-301" transform="rotate(-90 70 70)"/>
+          <text x="70" y="67" text-anchor="middle" fill="#ddeeff" font-size="16" font-weight="800" font-family="Inter,sans-serif">674</text>
+          <text x="70" y="82" text-anchor="middle" fill="#8ba4c0" font-size="9" font-family="Inter,sans-serif">лв / месец</text>
+        </svg>
+        <div class="donut-legend">
+          <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>Ремонт — 240 лв</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Застраховка — 185 лв</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span>Гориво — 145 лв</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Паркинг — 64 лв</div>
+          <div class="legend-item"><span class="legend-dot" style="background:#fb7185"></span>Глоби — 40 лв</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.15);border-radius:12px;padding:14px">
+        <div style="font-size:11px;font-weight:700;color:#fb923c;margin-bottom:8px">КАЛКУЛАТОР: ПРОДАЙ ИЛИ ПОПРАВИ?</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>Цена на ремонт</span><span style="color:var(--text);font-weight:600">1 200 лв</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px"><span>Стойност на колата</span><span style="color:var(--text);font-weight:600">6 500 лв</span></div>
+        <div style="margin-top:10px;padding:8px 12px;background:rgba(52,211,153,.1);border-radius:8px;font-size:12px;font-weight:600;color:#34d399;text-align:center">✓ Препоръчително е да поправиш</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- MAPS -->
+<section id="maps">
+  <div class="big-feature reverse reveal">
+    <div class="content">
+      <div class="section-label">Карта и инструменти</div>
+      <h2>Намери колата си,<br/><span class="gradient-text">без да се губиш</span></h2>
+      <p class="section-sub">GPS запис на местостоянката, таймер за паркинг и пътнически чеклист.</p>
+
+      <div class="feature-grid" style="grid-template-columns:1fr;gap:12px;margin-top:0">
+        <div class="fcard" style="--glow-color:#22d3ee">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="fcard-icon" style="background:rgba(34,211,238,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">📍</div>
+            <div><h3 style="font-size:15px;margin:0 0 4px">Намери моята кола</h3><p style="font-size:13px;margin:0">Запази местоположението с GPS и отвори директно в Google Maps</p></div>
+          </div>
+        </div>
+        <div class="fcard" style="--glow-color:#a78bfa">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="fcard-icon" style="background:rgba(167,139,250,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">⏱️</div>
+            <div><h3 style="font-size:15px;margin:0 0 4px">Таймер за паркинг</h3><p style="font-size:13px;margin:0">Задай времето на платения паркинг и получи предупреждение при изтичане</p></div>
+          </div>
+        </div>
+        <div class="fcard" style="--glow-color:#34d399">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="fcard-icon" style="background:rgba(52,211,153,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">✅</div>
+            <div><h3 style="font-size:15px;margin:0 0 4px">Пътнически чеклист</h3><p style="font-size:13px;margin:0">12 предварително зададени предмета — документи, отражаващ жилет, аптечка и още</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="visual" style="--accent:rgba(34,211,238,.1)">
+      <div style="background:#05101e;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.06)">
+        <div style="height:160px;background:linear-gradient(180deg,#0d1f35,#071828);position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;opacity:.4;background-image:radial-gradient(circle,rgba(59,130,246,.4) 1px,transparent 1px);background-size:30px 30px"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
+            <div style="font-size:28px">📍</div>
+            <div style="font-size:11px;font-weight:600;color:var(--blue-l);margin-top:4px;background:rgba(7,17,31,.8);padding:3px 10px;border-radius:20px">Колата е тук</div>
+          </div>
+        </div>
+        <div style="padding:14px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px">42.6977° N, 23.3219° E</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Запазено преди 12 минути</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--blue-l)">🗺️ Google Maps</div>
+            <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px;text-align:center;font-size:12px;font-weight:600;color:#fb7185">🗑️ Изтрий</div>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:14px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:14px;padding:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:600">Паркинг таймер</span>
+          <span style="font-size:11px;color:var(--muted)">Зададено: 90 мин</span>
+        </div>
+        <div style="text-align:center;font-size:36px;font-weight:900;color:#a78bfa;letter-spacing:2px">34:21</div>
+        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px">Остават до изтичане</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- REPORTS -->
+<section id="reports">
+  <div class="reveal" style="text-align:center;margin-bottom:56px">
+    <div class="section-label" style="justify-content:center">Отчети и прегледи</div>
+    <h2>От данни до<br/><span class="gradient-text">ясни решения</span></h2>
+    <p class="section-sub" style="margin:0 auto">Генерирай PDF, сподели чрез QR код или открий своя годишен Wrapped.</p>
+  </div>
+
+  <div class="feature-grid reveal">
+    <div class="fcard" style="--glow-color:#3b82f6"><div class="fcard-glow"></div><div class="fcard-icon" style="background:rgba(59,130,246,.1)">📋</div><h3>Месечен отчет</h3><p>Пълен PDF с пътувания, зареждания и разходи за избран месец.</p></div>
+    <div class="fcard" style="--glow-color:#a78bfa"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(167,139,250,.1)">📅</div><h3>Годишен отчет</h3><p>Сравнение на годините, тенденции и пълна статистика за 12 месеца.</p></div>
+    <div class="fcard" style="--glow-color:#34d399"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(52,211,153,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(52,211,153,.1)">💼</div><h3>Данъчен отчет</h3><p>Разходи за гориво и поддръжка — форматирани за данъчни цели.</p></div>
+    <div class="fcard" style="--glow-color:#fb923c"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(251,146,60,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(251,146,60,.1)">🎊</div><h3>Wrapped — Годишен преглед</h3><p>Забавен анимиран преглед на годината — най-доброто пътуване, постижения, конфети!</p></div>
+    <div class="fcard" style="--glow-color:#22d3ee"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(34,211,238,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(34,211,238,.1)">📲</div><h3>QR споделяне</h3><p>Генерирай QR код с компресираните данни — сподели с механик или счетоводител.</p></div>
+    <div class="fcard" style="--glow-color:#fb7185"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(251,113,133,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(251,113,133,.1)">💾</div><h3>Backup и Restore</h3><p>Пълен архив на всички данни с LZ-String компресия.</p></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ACHIEVEMENTS -->
+<section>
+  <div class="reveal" style="text-align:center;margin-bottom:40px">
+    <div class="section-label" style="justify-content:center">Геймификация</div>
+    <h2>Отключи <span class="gradient-text">постижения</span></h2>
+    <p class="section-sub" style="margin:0 auto">7 награди за вярно проследяване на километри и пътувания.</p>
+  </div>
+
+  <div class="achievements reveal">
+    <div class="ach-card"><span class="ach-emoji">✈️</span><div><div class="ach-title">Пътешественик</div><div class="ach-desc">1 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🛣️</span><div><div class="ach-title">Дългопробежен</div><div class="ach-desc">5 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🏅</span><div><div class="ach-title">Ветеран</div><div class="ach-desc">10 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🏆</span><div><div class="ach-title">Легенда</div><div class="ach-desc">50 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🚗</span><div><div class="ach-title">Редовен шофьор</div><div class="ach-desc">10 пътувания</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">⭐</span><div><div class="ach-title">Опитен шофьор</div><div class="ach-desc">50 пътувания</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">👑</span><div><div class="ach-title">Мастър шофьор</div><div class="ach-desc">100 пътувания</div></div></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="reveal" style="text-align:center;margin-bottom:56px">
+    <div class="section-label" style="justify-content:center">Инсталиране</div>
+    <h2>Работи като<br/><span class="gradient-text">нативно приложение</span></h2>
+    <p class="section-sub" style="margin:0 auto">Инсталирай директно от браузъра — без App Store, без Google Play. Работи офлайн.</p>
+  </div>
+
+  <div class="install-grid reveal">
+    <div class="install-card">
+      <div class="install-os">🍎</div>
+      <h3>iOS (iPhone / iPad)</h3>
+      <p>Отвори в Safari и добави на началния екран</p>
+      <ol class="steps">
+        <li>Отвори приложението в Safari</li>
+        <li>Натисни бутона „Сподели" ⬆️</li>
+        <li>Избери „Добави към началния екран"</li>
+        <li>Натисни „Добави" — готово!</li>
+      </ol>
+    </div>
+    <div class="install-card">
+      <div class="install-os">🤖</div>
+      <h3>Android</h3>
+      <p>Chrome автоматично предлага инсталиране</p>
+      <ol class="steps">
+        <li>Отвори приложението в Chrome</li>
+        <li>Ще се появи банер за инсталиране</li>
+        <li>Натисни „Инсталирай"</li>
+        <li>Иконата се появява на началния екран</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="reveal" style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    <span style="font-size:32px">🔒</span>
+    <div>
+      <h3 style="font-size:16px;margin-bottom:4px">Пълна поверителност</h3>
+      <p style="font-size:14px;color:var(--muted);margin:0">Всички данни се съхраняват само на твоето устройство. Никакви сървъри, никакви акаунти, никакви абонаменти.</p>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
+      <span class="tag green">Офлайн</span>
+      <span class="tag">Без регистрация</span>
+      <span class="tag purple">Безплатно</span>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
 
 <!-- CTA -->
-<section class="cta-section">
-  <div class="wrap">
-    <div class="cta-box reveal">
-      <h2>Готов да контролираш<br><span class="gradient-text">разходите си?</span></h2>
-      <p>Без регистрация. Без плащане. Работи директно в браузъра. Инсталирай като приложение на телефона си.</p>
-      <div class="cta-actions">
-        <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary btn-big" style="font-size:16px;padding:18px 36px">🚀 Отвори FuelPlus</a>
-      </div>
+<section>
+  <div class="cta-block reveal">
+    <h2>Готов ли си да поемеш<br/><span class="gradient-text">контрола над разходите?</span></h2>
+    <p>Безплатно, без регистрация, без абонамент. Просто отвори и започни.</p>
+    <div class="hero-actions">
+      <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary" style="padding:14px 32px;font-size:16px">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Отвори приложението безплатно
+      </a>
     </div>
   </div>
 </section>
 
-<!-- Footer -->
+<!-- FOOTER -->
 <footer>
-  <div class="wrap">
-    <div class="footer-inner">
-      <div class="footer-copy">&copy; 2026 FuelPlus</div>
-      <div class="footer-links">
-        <a href="https://fuel-web-app-beta.vercel.app">Приложение</a>
-        <a href="https://github.com/shadowwolf2605/FuelWebApp">GitHub</a>
-      </div>
-    </div>
+  <div class="footer-logo">
+    <img src="https://fuel-web-app-beta.vercel.app/icon-192.png" alt="Икона" />
+    <span>Разход на гориво</span>
+  </div>
+  <p>Управление на автомобил — пътувания, разходи и поддръжка</p>
+  <div style="display:flex;gap:16px">
+    <a href="https://fuel-web-app-beta.vercel.app">Приложение</a>
+    <a href="https://github.com/shadowwolf2605/FuelWebApp">GitHub</a>
   </div>
 </footer>
 
 <script>
-  // Sticky nav
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 40));
-
-  // Scroll reveal
-  const observer = new IntersectionObserver(
-    (entries) => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
-    { threshold: 0.1, rootMargin: '0px 0px -60px 0px' }
-  );
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-
-  // Parallax on phone
-  const phoneWrap = document.querySelector('.phone-wrap');
-  if (phoneWrap && window.innerWidth > 768) {
-    window.addEventListener('mousemove', (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 8;
-      const y = (e.clientY / window.innerHeight - 0.5) * 5;
-      phoneWrap.querySelector('.phone').style.transform = `rotateY(${x}deg) rotateX(${2 - y}deg)`;
-    });
-  }
 </script>
-
 </body>
 </html>
