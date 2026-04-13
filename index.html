@@ -593,7 +593,7 @@
     <div class="content">
       <div class="section-label">Начало</div>
       <h2>Всичко важно<br/><span class="gradient-text">на един екран</span></h2>
-      <p class="section-sub">Реалновременни данни за цени на горивото, история на пътуванията и графики за разход.</p>
+      <p class="section-sub">Данни в реално време за цени на горивото, история на пътуванията и графики за разход.</p>
 
       <div class="tags">
         <span class="tag">GPS проследяване</span>
@@ -638,23 +638,23 @@
           <div class="mock-row">
             <div class="mock-row-l">
               <span style="font-size:18px">⛽</span>
-              <div><div class="mock-title">Активно пътуване</div><div class="mock-sub">48.3 км · 1:23 ч</div></div>
+              <div><div class="mock-title">Активно пътуване</div><div class="mock-sub" id="live-trip">48.3 км · 1:23 ч</div></div>
             </div>
-            <span class="mock-val" style="color:#34d399">● Активно</span>
+            <span class="mock-val" style="color:#34d399" id="live-status">● Активно</span>
           </div>
           <div class="mock-row">
             <div class="mock-row-l">
               <span style="font-size:18px">💧</span>
-              <div><div class="mock-title">Цена на горивото</div><div class="mock-sub">↑ +0.04 лв от миналия път</div></div>
+              <div><div class="mock-title">Цена на горивото</div><div class="mock-sub" id="live-price-sub">↑ +0.04 лв от миналия път</div></div>
             </div>
-            <span class="mock-val">2.38 лв</span>
+            <span class="mock-val" id="live-price">2.38 лв</span>
           </div>
           <div class="mock-row">
             <div class="mock-row-l">
               <span style="font-size:18px">📊</span>
               <div><div class="mock-title">Среден разход</div><div class="mock-sub">последните 8 пътувания</div></div>
             </div>
-            <span class="mock-val" style="color:#34d399">5.8 л/100</span>
+            <span class="mock-val" style="color:#34d399" id="live-consumption">5.8 л/100</span>
           </div>
           <div class="mock-chart">
             <div class="mock-bar" style="height:45%;animation-delay:.0s"></div>
@@ -853,7 +853,7 @@
           <span style="font-size:13px;font-weight:600">Паркинг таймер</span>
           <span style="font-size:11px;color:var(--muted)">Зададено: 90 мин</span>
         </div>
-        <div style="text-align:center;font-size:36px;font-weight:900;color:#a78bfa;letter-spacing:2px">34:21</div>
+        <div style="text-align:center;font-size:36px;font-weight:900;color:#a78bfa;letter-spacing:2px" id="live-parking">34:21</div>
         <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px">Остават до изтичане</div>
       </div>
     </div>
@@ -980,10 +980,134 @@
 </footer>
 
 <script>
-  const observer = new IntersectionObserver((entries) => {
+  // ── Reveal on scroll ────────────────────────────────────────
+  const revealObs = new IntersectionObserver((entries) => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  // ── Stat counter animation ───────────────────────────────────
+  function animateCount(el, target, suffix, duration) {
+    let start = 0, startTime = null;
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      const p = Math.min((ts - startTime) / duration, 1);
+      const ease = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(ease * target) + suffix;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+  const statsObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const nums = e.target.querySelectorAll('.stat-num');
+      nums.forEach(n => {
+        const raw = n.textContent.trim();
+        const isPlus = raw.includes('+');
+        const isPct  = raw.includes('%');
+        const val = parseInt(raw);
+        if (!isNaN(val)) animateCount(n, val, isPlus ? '+' : isPct ? '%' : '', 1200);
+      });
+      statsObs.unobserve(e.target);
+    });
+  }, { threshold: 0.5 });
+  const statsEl = document.querySelector('.stats');
+  if (statsEl) statsObs.observe(statsEl);
+
+  // ── Live trip counter ────────────────────────────────────────
+  let tripKm = 48.3, tripSec = 83 * 60 + 0; // 1h23m in seconds
+  function updateTrip() {
+    tripKm   += 0.03 + Math.random() * 0.04;
+    tripSec  += 3;
+    const h  = Math.floor(tripSec / 3600);
+    const m  = Math.floor((tripSec % 3600) / 60);
+    const s  = tripSec % 60;
+    const timeStr = h > 0
+      ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ч`
+      : `${m}:${String(s).padStart(2,'0')} мин`;
+    const el = document.getElementById('live-trip');
+    if (el) el.textContent = `${tripKm.toFixed(1)} км · ${timeStr}`;
+  }
+  setInterval(updateTrip, 3000);
+
+  // ── Fuel price occasional flicker ──────────────────────────
+  const prices = [2.34, 2.36, 2.38, 2.41, 2.39, 2.37, 2.40];
+  let priceIdx = 2;
+  function flashPrice() {
+    const el    = document.getElementById('live-price');
+    const subEl = document.getElementById('live-price-sub');
+    if (!el || !subEl) return;
+    const next = prices[(priceIdx + 1) % prices.length];
+    const diff = (next - prices[priceIdx]).toFixed(2);
+    const up   = next >= prices[priceIdx];
+    priceIdx   = (priceIdx + 1) % prices.length;
+    el.style.transition = 'color .3s';
+    el.style.color = up ? '#34d399' : '#fb7185';
+    el.textContent = next.toFixed(2) + ' лв';
+    subEl.textContent = (up ? '↑ +' : '↓ ') + Math.abs(diff) + ' лв от миналия път';
+    setTimeout(() => { el.style.color = ''; }, 1500);
+  }
+  setInterval(flashPrice, 5000);
+
+  // ── Chart bars re-animate on interval ──────────────────────
+  const heights = [
+    [45,60,35,75,50,65,40,55],
+    [55,40,70,30,80,45,65,50],
+    [30,65,50,45,70,35,55,60],
+    [70,35,55,65,40,75,30,50],
+  ];
+  let chartCycle = 0;
+  function reAnimateBars() {
+    const bars = document.querySelectorAll('.mock-chart .mock-bar');
+    if (!bars.length) return;
+    chartCycle = (chartCycle + 1) % heights.length;
+    const h = heights[chartCycle];
+    bars.forEach((b, i) => {
+      b.style.transition = 'height .6s ease';
+      b.style.height = h[i] + '%';
+    });
+  }
+  setInterval(reAnimateBars, 3500);
+
+  // ── Parking countdown ──────────────────────────────────────
+  let parkMin = 34, parkSec = 21;
+  function tickParking() {
+    const el = document.getElementById('live-parking');
+    if (!el) return;
+    parkSec--;
+    if (parkSec < 0) { parkSec = 59; parkMin--; }
+    if (parkMin < 0) { parkMin = 34; parkSec = 21; } // loop for demo
+    el.textContent = `${String(parkMin).padStart(2,'0')}:${String(parkSec).padStart(2,'0')}`;
+    // Turn red when under 5 min
+    el.style.color = parkMin < 5 ? '#fb7185' : '#a78bfa';
+  }
+  setInterval(tickParking, 1000);
+
+  // ── Oil bar pulse ─────────────────────────────────────────
+  (function() {
+    const bars = document.querySelectorAll('[style*="72%"]');
+    bars.forEach(b => {
+      b.style.animation = 'oilPulse 2s ease-in-out infinite';
+    });
+  })();
+
+  // ── GPS dot blink ─────────────────────────────────────────
+  const gpsDot = document.querySelector('[style*="Колата е тук"]')?.parentElement;
+  if (gpsDot) {
+    gpsDot.style.animation = 'gpsPing 2.5s ease-in-out infinite';
+  }
 </script>
+
+<style>
+  @keyframes oilPulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .6; }
+  }
+  @keyframes gpsPing {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
+    50%       { transform: translate(-50%, -50%) scale(1.06); }
+  }
+</style>
 </body>
 </html>
