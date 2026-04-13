@@ -13,435 +13,549 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #07111f;
-      --bg2:       #0d1b2e;
-      --card:      #0f2040;
-      --card2:     #112244;
-      --blue:      #3b82f6;
-      --blue-l:    #60a5fa;
-      --blue-d:    #1d4ed8;
-      --cyan:      #22d3ee;
-      --purple:    #a78bfa;
-      --green:     #34d399;
-      --orange:    #fb923c;
-      --rose:      #fb7185;
-      --text:      #f0f4ff;
-      --muted:     #8ba4c0;
-      --border:    rgba(59,130,246,.18);
+      --bg:     #050f1a;
+      --card:   rgba(255,255,255,.04);
+      --card2:  rgba(255,255,255,.07);
+      --blue:   #3b82f6;
+      --blue-l: #60a5fa;
+      --blue-d: #1d4ed8;
+      --cyan:   #22d3ee;
+      --purple: #a78bfa;
+      --green:  #34d399;
+      --orange: #fb923c;
+      --rose:   #fb7185;
+      --text:   #f0f6ff;
+      --muted:  #7a9ab8;
+      --border: rgba(255,255,255,.08);
+      --r: 20px;
     }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: 'Inter', system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
-      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
 
-    body::before {
+    /* ── NOISE ── */
+    body::after {
       content: '';
-      position: fixed; inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-      pointer-events: none; z-index: 0;
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
     }
 
-    /* ─── NAV ─── */
+    /* ── NAV ── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      position: fixed; inset: 12px 12px auto; z-index: 200;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0 clamp(16px, 5vw, 64px);
-      height: 64px;
-      background: rgba(7,17,31,.85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      height: 52px;
+      background: rgba(5,15,26,.7);
+      backdrop-filter: blur(24px) saturate(180%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: background .3s;
     }
+    nav.scrolled { background: rgba(5,15,26,.95); }
 
-    .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-    .nav-logo img { width: 34px; height: 34px; border-radius: 8px; }
-    .nav-logo span { font-weight: 700; font-size: 15px; color: var(--text); }
+    .nav-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+    .nav-logo img { width: 30px; height: 30px; border-radius: 7px; }
+    .nav-logo span { font-weight: 700; font-size: 14px; color: var(--text); }
 
-    .nav-links { display: flex; gap: 24px; }
+    .nav-links { display: flex; gap: 6px; }
     .nav-links a {
-      color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500;
-      transition: color .2s;
+      color: var(--muted); text-decoration: none; font-size: 13px; font-weight: 500;
+      padding: 5px 12px; border-radius: 8px; transition: all .2s;
     }
-    .nav-links a:hover { color: var(--text); }
-
-    @media (max-width: 640px) { .nav-links { display: none; } }
+    .nav-links a:hover { color: var(--text); background: rgba(255,255,255,.06); }
+    @media (max-width: 680px) { .nav-links { display: none; } }
 
     .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
-      padding: 9px 20px; border-radius: 10px; font-size: 14px; font-weight: 600;
-      text-decoration: none; cursor: pointer; border: none; transition: all .2s;
-      white-space: nowrap;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 9px 18px; border-radius: 100px; font-size: 13px; font-weight: 600;
+      text-decoration: none; border: none; cursor: pointer; transition: all .2s;
+      white-space: nowrap; letter-spacing: -.01em;
     }
     .btn-primary {
       background: var(--blue); color: #fff;
-      box-shadow: 0 0 24px rgba(59,130,246,.4);
+      box-shadow: 0 0 0 1px rgba(59,130,246,.3), 0 4px 20px rgba(59,130,246,.35);
     }
     .btn-primary:hover {
-      background: #2563eb;
-      box-shadow: 0 0 32px rgba(59,130,246,.6);
-      transform: translateY(-1px);
+      background: #2563eb; transform: translateY(-1px);
+      box-shadow: 0 0 0 1px rgba(59,130,246,.4), 0 8px 28px rgba(59,130,246,.45);
     }
     .btn-ghost {
-      background: transparent; color: var(--muted);
+      background: rgba(255,255,255,.07); color: var(--text);
       border: 1px solid var(--border);
     }
-    .btn-ghost:hover { color: var(--text); border-color: rgba(59,130,246,.4); }
+    .btn-ghost:hover { background: rgba(255,255,255,.11); }
 
-    /* ─── HERO ─── */
+    /* ── HERO ── */
     .hero {
       position: relative; z-index: 1;
-      min-height: 100vh;
+      min-height: 100svh;
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       text-align: center;
-      padding: 100px clamp(16px, 6vw, 80px) 60px;
+      padding: 120px clamp(20px, 6vw, 100px) 80px;
       overflow: hidden;
     }
 
-    .hero-bg {
-      position: absolute; inset: 0; z-index: -1;
-      background:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(59,130,246,.22) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 50% at 20% 80%, rgba(167,139,250,.1) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 50% at 80% 90%, rgba(34,211,238,.08) 0%, transparent 60%);
+    /* Ambient orbs */
+    .hero::before {
+      content: '';
+      position: absolute; z-index: -1;
+      width: 900px; height: 600px;
+      top: -100px; left: 50%; transform: translateX(-50%);
+      background: radial-gradient(ellipse at 50% 40%, rgba(59,130,246,.18) 0%, rgba(99,102,241,.08) 40%, transparent 70%);
+      filter: blur(1px);
     }
 
+    .orb {
+      position: absolute; z-index: -1; border-radius: 50%;
+      filter: blur(80px); pointer-events: none;
+    }
+    .orb-1 { width: 500px; height: 500px; background: rgba(59,130,246,.12); top: -80px; left: -100px; animation: orbFloat 12s ease-in-out infinite; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(167,139,250,.09); bottom: 0; right: -80px; animation: orbFloat 15s ease-in-out infinite reverse; }
+    .orb-3 { width: 300px; height: 300px; background: rgba(34,211,238,.07); top: 40%; right: 10%; animation: orbFloat 10s ease-in-out infinite 3s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0); }
+      33%       { transform: translate(30px, -20px); }
+      66%       { transform: translate(-20px, 15px); }
+    }
+
+    /* Grid lines */
     .hero-grid {
       position: absolute; inset: 0; z-index: -1;
       background-image:
-        linear-gradient(rgba(59,130,246,.06) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(59,130,246,.06) 1px, transparent 1px);
-      background-size: 60px 60px;
-      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+        linear-gradient(rgba(59,130,246,.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,.05) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, black 20%, transparent 100%);
     }
 
-    .hero-badge {
+    .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 14px; border-radius: 100px;
-      background: rgba(59,130,246,.12); border: 1px solid rgba(59,130,246,.3);
-      font-size: 13px; font-weight: 500; color: var(--blue-l);
-      margin-bottom: 28px;
-      animation: fadeUp .6s ease both;
+      padding: 5px 14px 5px 8px; border-radius: 100px;
+      background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.25);
+      font-size: 12px; font-weight: 600; color: var(--blue-l);
+      margin-bottom: 32px;
+      animation: fadeUp .5s ease both;
     }
-    .hero-badge .dot {
+    .hero-eyebrow .live-dot {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: rgba(59,130,246,.15);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .hero-eyebrow .live-dot::after {
+      content: '';
       width: 7px; height: 7px; border-radius: 50%; background: var(--blue);
-      animation: blink 2s ease infinite;
+      animation: livePulse 2s ease infinite;
     }
-    @keyframes blink {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .5; transform: scale(.8); }
+    @keyframes livePulse {
+      0%, 100% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 0 rgba(59,130,246,.5); }
+      50%       { transform: scale(.8); opacity: .7; box-shadow: 0 0 0 4px rgba(59,130,246,0); }
+    }
+
+    .hero-icon {
+      width: 110px; height: 110px; border-radius: 26px;
+      margin-bottom: 32px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.08),
+        0 24px 60px rgba(59,130,246,.35),
+        0 8px 24px rgba(0,0,0,.4);
+      animation: fadeUp .5s ease both, iconFloat 5s ease-in-out infinite 1s;
+    }
+    @keyframes iconFloat {
+      0%, 100% { transform: translateY(0) rotate(-1deg); }
+      50%       { transform: translateY(-10px) rotate(1deg); }
     }
 
     h1 {
-      font-size: clamp(40px, 7vw, 80px);
-      font-weight: 900;
-      letter-spacing: -2px;
-      line-height: 1.05;
-      margin-bottom: 20px;
-      animation: fadeUp .7s .1s ease both;
+      font-size: clamp(44px, 8vw, 88px);
+      font-weight: 900; letter-spacing: -3px; line-height: 1.02;
+      margin-bottom: 22px;
+      animation: fadeUp .6s .1s ease both;
     }
 
     .gradient-text {
-      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #22d3ee 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 45%, #22d3ee 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       background-clip: text;
+      background-size: 200% 200%;
+      animation: gradientShift 6s ease infinite;
+    }
+    @keyframes gradientShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .hero-sub {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: var(--muted);
-      max-width: 600px;
-      margin: 0 auto 36px;
-      animation: fadeUp .7s .2s ease both;
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--muted); max-width: 520px; margin: 0 auto 40px;
+      line-height: 1.65; font-weight: 400;
+      animation: fadeUp .6s .2s ease both;
     }
 
     .hero-actions {
-      display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
-      animation: fadeUp .7s .3s ease both;
+      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp .6s .3s ease both;
     }
-    .hero-actions .btn { padding: 13px 28px; font-size: 15px; border-radius: 12px; }
+    .hero-actions .btn { padding: 12px 26px; font-size: 14px; border-radius: 100px; }
 
-    .hero-icon {
-      width: 100px; height: 100px; border-radius: 22px;
-      margin-bottom: 28px;
-      box-shadow: 0 20px 60px rgba(59,130,246,.4), 0 0 0 1px rgba(255,255,255,.07);
-      animation: fadeUp .6s ease both, float 4s ease-in-out infinite 1s;
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
-
+    /* Stats strip */
     .stats {
       display: flex;
-      max-width: 860px; width: 90%; margin: 56px auto 0;
-      background: rgba(15,32,64,.8);
+      max-width: 760px; width: calc(100% - 40px); margin: 64px auto 0;
+      background: rgba(255,255,255,.03);
       border: 1px solid var(--border);
-      border-radius: 16px;
+      border-radius: 20px;
       backdrop-filter: blur(12px);
       overflow: hidden;
-      animation: fadeUp .7s .5s ease both;
+      animation: fadeUp .6s .45s ease both;
     }
     .stat {
-      flex: 1; text-align: center;
-      padding: 20px 16px;
+      flex: 1; text-align: center; padding: 22px 12px;
       border-right: 1px solid var(--border);
+      transition: background .2s;
     }
     .stat:last-child { border-right: none; }
-    .stat-num { font-size: clamp(22px, 4vw, 32px); font-weight: 800; color: var(--blue-l); display: block; }
-    .stat-label { font-size: 12px; color: var(--muted); font-weight: 500; display: block; margin-top: 2px; }
+    .stat:hover { background: rgba(255,255,255,.03); }
+    .stat-num { font-size: clamp(24px, 4vw, 34px); font-weight: 900; color: var(--text); display: block; letter-spacing: -1px; }
+    .stat-label { font-size: 11px; color: var(--muted); font-weight: 500; display: block; margin-top: 3px; letter-spacing: .03em; }
 
-    @media (max-width: 500px) {
+    @media (max-width: 480px) {
       .stats { display: grid; grid-template-columns: 1fr 1fr; }
       .stat:nth-child(2) { border-right: none; }
-      .stat:nth-child(3),
-      .stat:nth-child(4) { border-top: 1px solid var(--border); }
+      .stat:nth-child(3), .stat:nth-child(4) { border-top: 1px solid var(--border); }
       .stat:nth-child(4) { border-right: none; }
       .stat:nth-child(5) { grid-column: 1/-1; border-top: 1px solid var(--border); border-right: none; }
     }
 
-    /* ─── SECTIONS ─── */
-    section { position: relative; z-index: 1; padding: 100px clamp(16px, 6vw, 80px); }
+    /* ── BILLBOARD ── */
+    .billboard {
+      position: relative; z-index: 1;
+      padding: 80px clamp(20px, 6vw, 100px);
+      text-align: center;
+      overflow: hidden;
+    }
+    .billboard-text {
+      font-size: clamp(28px, 5vw, 56px);
+      font-weight: 800; letter-spacing: -1.5px; line-height: 1.15;
+      max-width: 900px; margin: 0 auto;
+      color: rgba(240,246,255,.85);
+    }
+    .billboard-text em { font-style: normal; color: var(--blue-l); }
 
-    .section-label {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 12px; font-weight: 700; letter-spacing: .12em;
+    /* ── SECTIONS ── */
+    section { position: relative; z-index: 1; padding: 100px clamp(20px, 6vw, 100px); }
+
+    .section-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 700; letter-spacing: .14em;
       text-transform: uppercase; color: var(--blue-l);
-      margin-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .section-eyebrow::before {
+      content: '';
+      width: 16px; height: 2px; border-radius: 1px;
+      background: var(--blue-l);
     }
 
     h2 {
-      font-size: clamp(28px, 4vw, 48px);
-      font-weight: 800; letter-spacing: -1px; line-height: 1.15;
+      font-size: clamp(30px, 4.5vw, 52px);
+      font-weight: 900; letter-spacing: -1.5px; line-height: 1.1;
       margin-bottom: 16px;
     }
 
     .section-sub {
-      font-size: clamp(15px, 2vw, 17px);
-      color: var(--muted); max-width: 540px; margin-bottom: 56px;
+      font-size: clamp(15px, 1.8vw, 17px);
+      color: var(--muted); max-width: 480px; margin-bottom: 60px;
+      line-height: 1.7;
     }
 
-    .divider {
-      width: 100%; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--border), transparent);
-    }
-
-    /* ─── CARDS ─── */
-    .feature-grid {
+    /* ── BENTO GRID ── */
+    .bento {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: minmax(100px, auto);
+      gap: 14px;
     }
 
-    .fcard {
+    .bcard {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 28px;
       position: relative; overflow: hidden;
-      transition: transform .25s, box-shadow .25s, border-color .25s;
+      transition: transform .3s cubic-bezier(.34,1.56,.64,1), border-color .3s, box-shadow .3s;
+      backdrop-filter: blur(4px);
     }
-    .fcard:hover {
-      transform: translateY(-4px);
-      border-color: rgba(59,130,246,.4);
-      box-shadow: 0 16px 48px rgba(0,0,0,.4), 0 0 0 1px rgba(59,130,246,.12);
+    .bcard:hover {
+      transform: translateY(-4px) scale(1.005);
+      border-color: rgba(255,255,255,.14);
+      box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.05);
     }
-    .fcard-glow {
-      position: absolute; top: 0; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--glow-color, #3b82f6), transparent);
-      opacity: .6;
-    }
-    .fcard-icon {
-      width: 48px; height: 48px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px; margin-bottom: 16px;
-    }
-    .fcard h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .fcard p { font-size: 14px; color: var(--muted); line-height: 1.6; }
-    .fcard ul { list-style: none; margin-top: 14px; }
-    .fcard ul li {
-      font-size: 13px; color: var(--muted);
-      display: flex; align-items: center; gap: 7px; padding: 3px 0;
-    }
-    .fcard ul li::before {
+    .bcard::before {
       content: '';
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--glow-color, var(--blue)); flex-shrink: 0;
+      position: absolute; top: 0; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb, 59,130,246),.5), transparent);
     }
 
-    /* ─── BIG FEATURE ─── */
+    .bc-span-8 { grid-column: span 8; }
+    .bc-span-4 { grid-column: span 4; }
+    .bc-span-6 { grid-column: span 6; }
+    .bc-span-3 { grid-column: span 3; }
+    .bc-span-12 { grid-column: span 12; }
+
+    @media (max-width: 900px) {
+      .bc-span-8, .bc-span-4, .bc-span-6 { grid-column: span 12; }
+      .bc-span-3 { grid-column: span 6; }
+    }
+    @media (max-width: 500px) {
+      .bc-span-3 { grid-column: span 12; }
+    }
+
+    .bcard-icon {
+      width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin-bottom: 18px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.2);
+    }
+    .bcard h3 { font-size: 18px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 8px; }
+    .bcard p  { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+    .bcard ul { list-style: none; margin-top: 14px; }
+    .bcard ul li {
+      font-size: 13px; color: var(--muted);
+      display: flex; align-items: center; gap: 8px; padding: 4px 0;
+    }
+    .bcard ul li::before {
+      content: '';
+      width: 4px; height: 4px; border-radius: 50%;
+      background: var(--accent, var(--blue)); flex-shrink: 0;
+    }
+
+    /* Large bento card content */
+    .bc-large-content {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 24px; height: 100%;
+    }
+    @media (max-width: 600px) { .bc-large-content { grid-template-columns: 1fr; } }
+
+    /* ── BIG FEATURE ── */
     .big-feature {
       display: grid; grid-template-columns: 1fr 1fr;
-      gap: 60px; align-items: center;
+      gap: 80px; align-items: center;
     }
     .big-feature.reverse { direction: rtl; }
     .big-feature.reverse > * { direction: ltr; }
     @media (max-width: 768px) {
-      .big-feature, .big-feature.reverse { grid-template-columns: 1fr; }
+      .big-feature, .big-feature.reverse { grid-template-columns: 1fr; gap: 40px; }
     }
-    .big-feature .visual {
+
+    .feature-visual {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 24px; padding: 32px;
+      border-radius: 28px; padding: 28px;
       position: relative; overflow: hidden;
     }
-    .big-feature .visual::before {
+    .feature-visual::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--accent, rgba(59,130,246,.15)) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, var(--vis-glow, rgba(59,130,246,.12)) 0%, transparent 70%);
     }
 
     /* Mock screen */
-    .mock-screen {
-      background: #05101e; border-radius: 14px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.06);
-    }
-    .mock-top {
-      display: flex; gap: 6px; padding: 12px 14px 8px;
-      background: #08162b; border-bottom: 1px solid rgba(255,255,255,.05);
-    }
-    .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .mock-body { padding: 16px; }
-    .mock-row {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 10px 12px; border-radius: 10px;
-      background: rgba(59,130,246,.07);
-      border: 1px solid rgba(59,130,246,.1); margin-bottom: 8px;
-    }
-    .mock-row-l { display: flex; align-items: center; gap: 10px; }
-    .mock-title { font-weight: 600; color: #e0eaff; font-size: 12px; }
-    .mock-sub { color: var(--muted); font-size: 11px; }
-    .mock-val { font-size: 12px; font-weight: 700; color: var(--blue-l); }
-    .mock-chart {
-      margin-top: 12px; display: flex; align-items: flex-end; gap: 6px;
-      height: 60px; padding: 0 4px;
+    .mock {
+      background: #030d18; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.06); overflow: hidden;
     }
     .mock-bar {
-      flex: 1; border-radius: 4px 4px 0 0;
-      background: linear-gradient(180deg, var(--blue-l), var(--blue-d));
-      opacity: .85;
-      animation: barGrow .8s ease both;
+      display: flex; gap: 5px; padding: 10px 12px 7px;
+      background: #050f1d; border-bottom: 1px solid rgba(255,255,255,.04);
     }
-    @keyframes barGrow {
-      from { transform: scaleY(0); transform-origin: bottom; opacity: 0; }
-      to { transform: scaleY(1); transform-origin: bottom; opacity: .85; }
+    .mock-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mock-body { padding: 14px; }
+    .mock-section {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .1em; margin-bottom: 10px;
+    }
+    .mock-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 9px 11px; border-radius: 10px;
+      background: rgba(59,130,246,.06);
+      border: 1px solid rgba(59,130,246,.1); margin-bottom: 7px;
+    }
+    .mock-row-l { display: flex; align-items: center; gap: 9px; }
+    .mock-title { font-weight: 600; color: #ddeeff; font-size: 11px; }
+    .mock-hint  { color: var(--muted); font-size: 10px; margin-top: 1px; }
+    .mock-val   { font-size: 11px; font-weight: 700; color: var(--blue-l); }
+    .mock-chart { margin-top: 10px; display: flex; align-items: flex-end; gap: 5px; height: 52px; }
+    .mock-cbar {
+      flex: 1; border-radius: 3px 3px 0 0;
+      background: linear-gradient(180deg, var(--blue-l), var(--blue-d));
+      animation: barUp .8s ease both;
+    }
+    @keyframes barUp {
+      from { transform: scaleY(0); transform-origin: bottom; }
+      to   { transform: scaleY(1); transform-origin: bottom; }
     }
 
     /* Tags */
     .tag {
       display: inline-flex; align-items: center; gap: 5px;
-      padding: 4px 10px; border-radius: 6px;
-      font-size: 12px; font-weight: 600;
-      background: rgba(59,130,246,.12); color: var(--blue-l);
-      border: 1px solid rgba(59,130,246,.2);
+      padding: 4px 10px; border-radius: 100px;
+      font-size: 11px; font-weight: 600; letter-spacing: .01em;
     }
-    .tag.green  { background: rgba(52,211,153,.1);  color: #34d399; border-color: rgba(52,211,153,.2); }
-    .tag.orange { background: rgba(251,146,60,.1);  color: #fb923c; border-color: rgba(251,146,60,.2); }
-    .tag.purple { background: rgba(167,139,250,.1); color: #a78bfa; border-color: rgba(167,139,250,.2); }
-    .tag.rose   { background: rgba(251,113,133,.1); color: #fb7185; border-color: rgba(251,113,133,.2); }
-    .tag.cyan   { background: rgba(34,211,238,.1);  color: #22d3ee; border-color: rgba(34,211,238,.2); }
-    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+    .tag-blue   { background: rgba(59,130,246,.12);  color: var(--blue-l); border: 1px solid rgba(59,130,246,.2); }
+    .tag-green  { background: rgba(52,211,153,.1);   color: #34d399;       border: 1px solid rgba(52,211,153,.2); }
+    .tag-orange { background: rgba(251,146,60,.1);   color: #fb923c;       border: 1px solid rgba(251,146,60,.2); }
+    .tag-purple { background: rgba(167,139,250,.1);  color: #a78bfa;       border: 1px solid rgba(167,139,250,.2); }
+    .tag-rose   { background: rgba(251,113,133,.1);  color: #fb7185;       border: 1px solid rgba(251,113,133,.2); }
+    .tag-cyan   { background: rgba(34,211,238,.1);   color: #22d3ee;       border: 1px solid rgba(34,211,238,.2); }
+    .tag-yellow { background: rgba(234,179,8,.1);    color: #eab308;       border: 1px solid rgba(234,179,8,.2); }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 28px; }
 
-    /* Achievements */
-    .achievements {
+    /* Achievement */
+    .ach-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 14px;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 12px;
     }
     .ach-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 16px; padding: 20px;
+      border-radius: 18px; padding: 18px 20px;
       display: flex; align-items: center; gap: 14px;
-      transition: transform .2s, border-color .2s;
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1), border-color .2s;
+      cursor: default;
     }
-    .ach-card:hover { transform: translateY(-3px); border-color: rgba(251,191,36,.35); }
-    .ach-emoji { font-size: 28px; flex-shrink: 0; }
-    .ach-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
-    .ach-desc { font-size: 11px; color: var(--muted); }
+    .ach-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: rgba(251,191,36,.3);
+    }
+    .ach-emoji { font-size: 26px; }
+    .ach-name { font-size: 13px; font-weight: 700; }
+    .ach-km   { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
     /* Install */
-    .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    @media (max-width: 600px) { .install-grid { grid-template-columns: 1fr; } }
+    .install-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .install-grid { grid-template-columns: 1fr; } }
     .install-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 20px; padding: 32px; text-align: center;
+      border-radius: 24px; padding: 32px 28px; text-align: center;
     }
-    .install-os { font-size: 40px; margin-bottom: 14px; }
-    .install-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 10px; }
-    .install-card p { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-    .steps { text-align: left; list-style: none; counter-reset: steps; }
+    .install-os { font-size: 44px; margin-bottom: 16px; display: block; }
+    .install-card h3 { font-size: 17px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 8px; }
+    .install-card > p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .steps { list-style: none; counter-reset: s; text-align: left; }
     .steps li {
-      counter-increment: steps;
-      display: flex; align-items: flex-start; gap: 12px;
+      counter-increment: s;
+      display: flex; align-items: flex-start; gap: 11px;
       font-size: 13px; color: var(--muted); margin-bottom: 10px;
     }
     .steps li::before {
-      content: counter(steps);
-      width: 22px; height: 22px; border-radius: 50%;
-      background: rgba(59,130,246,.2); color: var(--blue-l);
+      content: counter(s);
+      width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(59,130,246,.18); color: var(--blue-l);
       display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; flex-shrink: 0;
+      font-size: 10px; font-weight: 800; margin-top: 1px;
     }
 
-    /* CTA */
-    .cta-block {
-      background: linear-gradient(135deg, rgba(29,78,216,.3) 0%, rgba(91,33,182,.3) 100%);
-      border: 1px solid rgba(59,130,246,.25); border-radius: 28px;
-      text-align: center; padding: 72px clamp(20px, 6vw, 80px);
-      position: relative; overflow: hidden;
+    /* Privacy bar */
+    .privacy-bar {
+      margin-top: 16px;
+      background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
     }
-    .cta-block::before {
+    .privacy-bar h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+    .privacy-bar p  { font-size: 13px; color: var(--muted); }
+
+    /* CTA */
+    .cta-wrap {
+      position: relative; border-radius: 32px; overflow: hidden;
+      background: linear-gradient(135deg, rgba(29,78,216,.28) 0%, rgba(91,33,182,.22) 100%);
+      border: 1px solid rgba(59,130,246,.2);
+      text-align: center;
+      padding: 80px clamp(24px, 6vw, 100px);
+    }
+    .cta-wrap::before {
       content: '';
       position: absolute; inset: 0;
-      background: radial-gradient(ellipse 70% 80% at 50% -20%, rgba(59,130,246,.25) 0%, transparent 70%);
+      background: radial-gradient(ellipse 80% 100% at 50% -10%, rgba(59,130,246,.22) 0%, transparent 65%);
     }
-    .cta-block h2, .cta-block p, .cta-block .hero-actions { position: relative; }
-    .cta-block p { color: var(--muted); max-width: 500px; margin: 0 auto 32px; }
+    .cta-wrap > * { position: relative; }
+    .cta-wrap h2 { margin-bottom: 14px; }
+    .cta-wrap p  { color: var(--muted); max-width: 440px; margin: 0 auto 36px; font-size: 16px; }
 
     /* Footer */
     footer {
       position: relative; z-index: 1;
       border-top: 1px solid var(--border);
-      padding: 32px clamp(16px, 6vw, 80px);
+      padding: 28px clamp(20px, 6vw, 100px);
       display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 16px;
+      flex-wrap: wrap; gap: 14px;
     }
     .footer-logo { display: flex; align-items: center; gap: 8px; }
-    .footer-logo img { width: 28px; height: 28px; border-radius: 7px; }
-    .footer-logo span { font-size: 13px; font-weight: 600; }
+    .footer-logo img { width: 26px; height: 26px; border-radius: 6px; }
+    .footer-logo span { font-size: 13px; font-weight: 700; }
     footer p { font-size: 12px; color: var(--muted); }
-    footer a { color: var(--muted); text-decoration: none; font-size: 12px; }
+    footer a { color: var(--muted); text-decoration: none; font-size: 12px; transition: color .2s; }
     footer a:hover { color: var(--text); }
+
+    /* Divider */
+    .sep {
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, var(--border) 20%, var(--border) 80%, transparent 100%);
+      margin: 0 clamp(20px, 6vw, 100px);
+    }
 
     /* Animations */
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
+      from { opacity: 0; transform: translateY(24px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-    .reveal { opacity: 0; transform: translateY(30px); transition: opacity .6s ease, transform .6s ease; }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+    }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+
+    .stagger-1 { transition-delay: .08s; }
+    .stagger-2 { transition-delay: .16s; }
+    .stagger-3 { transition-delay: .24s; }
+    .stagger-4 { transition-delay: .32s; }
+    .stagger-5 { transition-delay: .40s; }
+    .stagger-6 { transition-delay: .48s; }
+    .stagger-7 { transition-delay: .56s; }
+    .stagger-8 { transition-delay: .64s; }
+    .stagger-9 { transition-delay: .72s; }
+
+    /* Glow on hover utility */
+    .glow-blue:hover { box-shadow: 0 0 40px rgba(59,130,246,.2); }
+    .glow-purple:hover { box-shadow: 0 0 40px rgba(167,139,250,.18); }
+    .glow-green:hover { box-shadow: 0 0 40px rgba(52,211,153,.16); }
+    .glow-orange:hover { box-shadow: 0 0 40px rgba(251,146,60,.16); }
 
     /* Donut */
-    .donut-wrap { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; }
-    .donut-legend { flex: 1; min-width: 160px; }
-    .legend-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 13px; color: var(--muted); }
-    .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .donut-wrap { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 16px; }
+    .donut-legend { flex: 1; min-width: 140px; }
+    .legend-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; font-size: 12.5px; color: var(--muted); }
+    .legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
 
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: rgba(59,130,246,.3); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb { background: rgba(59,130,246,.25); border-radius: 10px; }
   </style>
 </head>
 <body>
 
 <!-- NAV -->
-<nav>
+<nav id="nav">
   <a class="nav-logo" href="#">
     <img src="https://fuel-web-app-beta.vercel.app/icon-192.png" alt="Разход на гориво" />
     <span>Разход на гориво</span>
@@ -453,278 +567,231 @@
     <a href="#reports">Отчети</a>
     <a href="#install">Инсталиране</a>
   </div>
-  <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">Отвори приложението →</a>
+  <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">Отвори →</a>
 </nav>
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
   <div class="hero-grid"></div>
 
-  <img class="hero-icon" src="https://fuel-web-app-beta.vercel.app/icon-512.png" alt="Икона" />
-
-  <div class="hero-badge">
-    <span class="dot"></span>
+  <div class="hero-eyebrow">
+    <span class="live-dot"></span>
     Безплатно · Работи офлайн · За iOS и Android
   </div>
 
+  <img class="hero-icon" src="https://fuel-web-app-beta.vercel.app/icon-512.png" alt="Икона" />
+
   <h1>Управлявай<br/><span class="gradient-text">автомобила си</span><br/>интелигентно.</h1>
 
-  <p class="hero-sub">
-    Проследявай гориво, пътувания, разходи и поддръжка — всичко на едно място, прецизно и красиво.
-  </p>
+  <p class="hero-sub">Проследявай гориво, пътувания, разходи и поддръжка — всичко на едно място, прецизно и красиво.</p>
 
   <div class="hero-actions">
     <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       Отвори приложението
     </a>
-    <a href="#install" class="btn btn-ghost">
-      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-      Инсталирай
-    </a>
+    <a href="#install" class="btn btn-ghost">Инсталирай</a>
   </div>
 
   <div class="stats reveal">
-    <div class="stat"><span class="stat-num">5</span><span class="stat-label">раздела</span></div>
-    <div class="stat"><span class="stat-num">30+</span><span class="stat-label">функции</span></div>
-    <div class="stat"><span class="stat-num">9</span><span class="stat-label">категории разходи</span></div>
-    <div class="stat"><span class="stat-num">7</span><span class="stat-label">постижения</span></div>
-    <div class="stat"><span class="stat-num">100%</span><span class="stat-label">поверителност</span></div>
+    <div class="stat"><span class="stat-num" data-count="5">5</span><span class="stat-label">раздела</span></div>
+    <div class="stat"><span class="stat-num" data-count="30" data-suffix="+">30+</span><span class="stat-label">функции</span></div>
+    <div class="stat"><span class="stat-num" data-count="9">9</span><span class="stat-label">категории</span></div>
+    <div class="stat"><span class="stat-num" data-count="7">7</span><span class="stat-label">постижения</span></div>
+    <div class="stat"><span class="stat-num" data-count="100" data-suffix="%">100%</span><span class="stat-label">поверителност</span></div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
-<!-- FEATURES -->
+<!-- BILLBOARD 1 -->
+<div class="billboard reveal">
+  <p class="billboard-text">Гориво. Пътувания. Разходи. Поддръжка.<br/><em>Всичко на едно място.</em></p>
+</div>
+
+<div class="sep"></div>
+
+<!-- BENTO FEATURES -->
 <section id="features">
   <div class="reveal">
-    <div class="section-label">Всичко необходимо</div>
+    <div class="section-eyebrow">Всички функции</div>
     <h2>Пълен контрол върху<br/><span class="gradient-text">всяко пътуване</span></h2>
     <p class="section-sub">От заредено гориво до следващата смяна на маслото — следи всичко, без усилия.</p>
   </div>
 
-  <div class="feature-grid">
-    <div class="fcard reveal" style="--glow-color:#3b82f6">
-      <div class="fcard-glow"></div>
-      <div class="fcard-icon" style="background:rgba(59,130,246,.12)">⛽</div>
-      <h3>Проследяване на пътувания</h3>
-      <p>GPS проследяване в реално време с автоматично изчисление на разстоянието чрез Haversine формулата.</p>
-      <ul>
-        <li>Запис на одометър и снимка</li>
-        <li>Количество и вид гориво</li>
-        <li>Цена на литър и бон</li>
-        <li>Брой пасажери</li>
-      </ul>
+  <div class="bento">
+
+    <!-- Large card: Trip tracking -->
+    <div class="bcard bc-span-8 reveal glow-blue" style="--accent-rgb:59,130,246">
+      <div class="bc-large-content">
+        <div>
+          <div class="bcard-icon" style="background:rgba(59,130,246,.12)">⛽</div>
+          <h3>Проследяване на пътувания</h3>
+          <p>GPS проследяване в реално време с автоматично изчисление на разстоянието чрез Haversine формулата.</p>
+          <ul>
+            <li>Запис на одометър и снимка</li>
+            <li>Количество и вид гориво</li>
+            <li>Цена на литър и бон</li>
+            <li>Брой пасажери</li>
+          </ul>
+        </div>
+        <div class="mock">
+          <div class="mock-bar">
+            <div class="mock-dot" style="background:#ef4444"></div>
+            <div class="mock-dot" style="background:#f59e0b"></div>
+            <div class="mock-dot" style="background:#10b981"></div>
+          </div>
+          <div class="mock-body">
+            <div class="mock-section">Начален панел</div>
+            <div class="mock-row">
+              <div class="mock-row-l">
+                <span style="font-size:16px">⛽</span>
+                <div><div class="mock-title">Активно пътуване</div><div class="mock-hint" id="live-trip">48.3 км · 1:23 ч</div></div>
+              </div>
+              <span class="mock-val" style="color:#34d399" id="live-status">● Активно</span>
+            </div>
+            <div class="mock-row">
+              <div class="mock-row-l">
+                <span style="font-size:16px">💧</span>
+                <div><div class="mock-title">Цена на горивото</div><div class="mock-hint" id="live-price-sub">↑ +0.04 лв</div></div>
+              </div>
+              <span class="mock-val" id="live-price">2.38 лв</span>
+            </div>
+            <div class="mock-row">
+              <div class="mock-row-l">
+                <span style="font-size:16px">📊</span>
+                <div><div class="mock-title">Среден разход</div><div class="mock-hint">последните 8 пътувания</div></div>
+              </div>
+              <span class="mock-val" style="color:#34d399" id="live-cons">5.8 л/100</span>
+            </div>
+            <div class="mock-chart">
+              <div class="mock-cbar" style="height:45%;animation-delay:.0s"></div>
+              <div class="mock-cbar" style="height:60%;animation-delay:.1s"></div>
+              <div class="mock-cbar" style="height:35%;animation-delay:.2s"></div>
+              <div class="mock-cbar" style="height:75%;animation-delay:.3s"></div>
+              <div class="mock-cbar" style="height:50%;animation-delay:.4s"></div>
+              <div class="mock-cbar" style="height:65%;animation-delay:.5s;background:linear-gradient(180deg,#34d399,#059669)"></div>
+              <div class="mock-cbar" style="height:40%;animation-delay:.6s"></div>
+              <div class="mock-cbar" style="height:55%;animation-delay:.7s"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="fcard reveal" style="--glow-color:#22d3ee">
-      <div class="fcard-glow" style="--glow-color:#22d3ee"></div>
-      <div class="fcard-icon" style="background:rgba(34,211,238,.1)">📊</div>
+    <!-- Small: Analysis -->
+    <div class="bcard bc-span-4 reveal stagger-1 glow-blue" style="--accent-rgb:34,211,238">
+      <div class="bcard-icon" style="background:rgba(34,211,238,.1)">📊</div>
       <h3>Анализ на разхода</h3>
-      <p>Цветно кодиран стълбовиден график за последните 8 пътувания с линия за средна стойност.</p>
-      <ul>
-        <li>Зелено — под 6 л/100 км</li>
-        <li>Оранжево — 6–9 л/100 км</li>
-        <li>Червено — над 9 л/100 км</li>
-        <li>Спидометър визуализация</li>
-      </ul>
+      <p>Цветно кодиран график с линия за средна стойност и спидометър визуализация.</p>
+      <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+        <span class="tag tag-green">＜6 л/100</span>
+        <span class="tag tag-orange">6–9 л/100</span>
+        <span class="tag tag-rose">＞9 л/100</span>
+      </div>
     </div>
 
-    <div class="fcard reveal" style="--glow-color:#a78bfa">
-      <div class="fcard-glow" style="--glow-color:#a78bfa"></div>
-      <div class="fcard-icon" style="background:rgba(167,139,250,.1)">🚗</div>
+    <!-- Small: Cars -->
+    <div class="bcard bc-span-4 reveal stagger-2 glow-purple" style="--accent-rgb:167,139,250">
+      <div class="bcard-icon" style="background:rgba(167,139,250,.1)">🚗</div>
       <h3>Управление на автомобили</h3>
-      <p>Поддръжка на множество автомобили с изолирани данни — марка, модел, година, застраховка.</p>
-      <ul>
-        <li>Снимка на автомобила</li>
-        <li>Напомняне за смяна на масло</li>
-        <li>Сравнителни метрики</li>
-        <li>Текуща стойност и км/год</li>
-      </ul>
+      <p>Множество автомобили с изолирани данни — марка, модел, застраховка, снимка.</p>
     </div>
 
-    <div class="fcard reveal" style="--glow-color:#34d399">
-      <div class="fcard-glow" style="--glow-color:#34d399"></div>
-      <div class="fcard-icon" style="background:rgba(52,211,153,.1)">🔧</div>
+    <!-- Small: Maintenance -->
+    <div class="bcard bc-span-4 reveal stagger-3 glow-green" style="--accent-rgb:52,211,153">
+      <div class="bcard-icon" style="background:rgba(52,211,153,.1)">🔧</div>
       <h3>Поддръжка и документи</h3>
-      <p>Следи всички важни дати — винетка, застраховка, технически преглед — с цветно кодирани предупреждения.</p>
-      <ul>
-        <li>5 категории поддръжка</li>
-        <li>Проследяване на щети</li>
-        <li>Сканиране и съхранение на документи</li>
-        <li>Шофьорска книжка и каско</li>
-      </ul>
+      <p>Важни дати с цветно кодирани предупреждения — винетка, застраховка, ГТП.</p>
     </div>
 
-    <div class="fcard reveal" style="--glow-color:#fb923c">
-      <div class="fcard-glow" style="--glow-color:#fb923c"></div>
-      <div class="fcard-icon" style="background:rgba(251,146,60,.1)">💰</div>
+    <!-- Small: Expenses -->
+    <div class="bcard bc-span-4 reveal stagger-4 glow-orange" style="--accent-rgb:251,146,60">
+      <div class="bcard-icon" style="background:rgba(251,146,60,.1)">💰</div>
       <h3>Разходи и анализ</h3>
       <p>9 категории разходи с диаграма, повтарящи се плащания и специален калкулатор.</p>
-      <ul>
-        <li>Ремонт, паркинг, глоби, винетка</li>
-        <li>Напомняне за глоби (50% отстъпка)</li>
-        <li>Продай или поправи? — калкулатор</li>
-        <li>Месечни тенденции</li>
-      </ul>
     </div>
 
-    <div class="fcard reveal" style="--glow-color:#fb7185">
-      <div class="fcard-glow" style="--glow-color:#fb7185"></div>
-      <div class="fcard-icon" style="background:rgba(251,113,133,.1)">📄</div>
+    <!-- Small: Reports -->
+    <div class="bcard bc-span-4 reveal stagger-5" style="--accent-rgb:251,113,133">
+      <div class="bcard-icon" style="background:rgba(251,113,133,.1)">📄</div>
       <h3>Отчети и резервни копия</h3>
-      <p>Генерирай PDF отчети, архивирай данните си и ги сподели чрез QR код.</p>
-      <ul>
-        <li>Месечни и годишни отчети</li>
-        <li>Данъчен отчет</li>
-        <li>Wrapped — годишен преглед</li>
-        <li>Пълен backup и restore</li>
-      </ul>
+      <p>PDF отчети, QR споделяне, пълен backup/restore и годишен Wrapped.</p>
     </div>
+
+    <!-- Medium: Maps -->
+    <div class="bcard bc-span-4 reveal stagger-6 glow-blue" style="--accent-rgb:34,211,238">
+      <div class="bcard-icon" style="background:rgba(34,211,238,.1)">📍</div>
+      <h3>Карта и инструменти</h3>
+      <p>Намери колата си с GPS, таймер за паркинг и пътнически чеклист с 12 предмета.</p>
+    </div>
+
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
-<!-- DASHBOARD -->
-<section id="dashboard">
-  <div class="big-feature reveal">
-    <div class="content">
-      <div class="section-label">Начало</div>
-      <h2>Всичко важно<br/><span class="gradient-text">на един екран</span></h2>
-      <p class="section-sub">Данни в реално време за цени на горивото, история на пътуванията и графики за разход.</p>
+<!-- BILLBOARD 2 -->
+<div class="billboard reveal">
+  <p class="billboard-text"><em>Никога</em> повече да не пропускаш<br/>важна дата за автомобила си.</p>
+</div>
 
-      <div class="tags">
-        <span class="tag">GPS проследяване</span>
-        <span class="tag cyan">Sparkline графика</span>
-        <span class="tag green">Разход л/100 км</span>
-        <span class="tag purple">Множество коли</span>
-      </div>
-
-      <div class="feature-grid" style="grid-template-columns:1fr 1fr;gap:12px">
-        <div class="fcard" style="padding:18px;--glow-color:#3b82f6">
-          <div class="fcard-icon" style="background:rgba(59,130,246,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">📈</div>
-          <h3 style="font-size:14px">Цени на горивото</h3>
-          <p style="font-size:12px">Мин / Макс / Средно за последните 12 зареждания</p>
-        </div>
-        <div class="fcard" style="padding:18px;--glow-color:#22d3ee">
-          <div class="fcard-icon" style="background:rgba(34,211,238,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">🗺️</div>
-          <h3 style="font-size:14px">Маршрутна карта</h3>
-          <p style="font-size:12px">GPS точки на реалния маршрут, визуализирани на карта</p>
-        </div>
-        <div class="fcard" style="padding:18px;--glow-color:#34d399">
-          <div class="fcard-icon" style="background:rgba(52,211,153,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">🏆</div>
-          <h3 style="font-size:14px">Постижения</h3>
-          <p style="font-size:12px">7 отключваеми награди за км и пътувания</p>
-        </div>
-        <div class="fcard" style="padding:18px;--glow-color:#fb923c">
-          <div class="fcard-icon" style="background:rgba(251,146,60,.1);width:36px;height:36px;border-radius:10px;font-size:16px;margin-bottom:10px">💡</div>
-          <h3 style="font-size:14px">AI съвети</h3>
-          <p style="font-size:12px">Контекстни препоръки за пестене на гориво</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="visual" style="--accent:rgba(59,130,246,.15)">
-      <div class="mock-screen">
-        <div class="mock-top">
-          <div class="mock-dot" style="background:#ef4444"></div>
-          <div class="mock-dot" style="background:#f59e0b"></div>
-          <div class="mock-dot" style="background:#10b981"></div>
-        </div>
-        <div class="mock-body">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:10px">НАЧАЛЕН ПАНЕЛ</div>
-          <div class="mock-row">
-            <div class="mock-row-l">
-              <span style="font-size:18px">⛽</span>
-              <div><div class="mock-title">Активно пътуване</div><div class="mock-sub" id="live-trip">48.3 км · 1:23 ч</div></div>
-            </div>
-            <span class="mock-val" style="color:#34d399" id="live-status">● Активно</span>
-          </div>
-          <div class="mock-row">
-            <div class="mock-row-l">
-              <span style="font-size:18px">💧</span>
-              <div><div class="mock-title">Цена на горивото</div><div class="mock-sub" id="live-price-sub">↑ +0.04 лв от миналия път</div></div>
-            </div>
-            <span class="mock-val" id="live-price">2.38 лв</span>
-          </div>
-          <div class="mock-row">
-            <div class="mock-row-l">
-              <span style="font-size:18px">📊</span>
-              <div><div class="mock-title">Среден разход</div><div class="mock-sub">последните 8 пътувания</div></div>
-            </div>
-            <span class="mock-val" style="color:#34d399" id="live-consumption">5.8 л/100</span>
-          </div>
-          <div class="mock-chart">
-            <div class="mock-bar" style="height:45%;animation-delay:.0s"></div>
-            <div class="mock-bar" style="height:60%;animation-delay:.1s"></div>
-            <div class="mock-bar" style="height:35%;animation-delay:.2s"></div>
-            <div class="mock-bar" style="height:75%;animation-delay:.3s"></div>
-            <div class="mock-bar" style="height:50%;animation-delay:.4s"></div>
-            <div class="mock-bar" style="height:65%;animation-delay:.5s;background:linear-gradient(180deg,#34d399,#059669)"></div>
-            <div class="mock-bar" style="height:40%;animation-delay:.6s"></div>
-            <div class="mock-bar" style="height:55%;animation-delay:.7s"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- MAINTENANCE -->
 <section id="maintenance">
   <div class="big-feature reverse reveal">
-    <div class="content">
-      <div class="section-label">Поддръжка</div>
+    <div>
+      <div class="section-eyebrow">Поддръжка</div>
       <h2>Никога не<br/><span class="gradient-text">пропускай важна дата</span></h2>
       <p class="section-sub">Цветно кодирани предупреждения за всички документи и технически срокове.</p>
 
       <div class="tags">
-        <span class="tag rose">Изтекъл</span>
-        <span class="tag orange">&lt; 30 дни</span>
-        <span class="tag" style="color:#eab308;background:rgba(234,179,8,.1);border-color:rgba(234,179,8,.2)">&lt; 90 дни</span>
-        <span class="tag green">В ред</span>
+        <span class="tag tag-rose">Изтекъл</span>
+        <span class="tag tag-orange">&lt; 30 дни</span>
+        <span class="tag tag-yellow">&lt; 90 дни</span>
+        <span class="tag tag-green">В ред</span>
       </div>
 
       <ul style="list-style:none">
-        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🛡️</span> Гражданска отговорност</li>
-        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🔍</span> Технически преглед</li>
-        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🛣️</span> Винетка</li>
-        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:18px">🚗</span> Каско застраховка</li>
-        <li style="display:flex;align-items:center;gap:10px;padding:8px 0;font-size:14px;color:var(--muted)"><span style="font-size:18px">📋</span> Шофьорска книжка</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:17px">🛡️</span> Гражданска отговорност</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:17px">🔍</span> Технически преглед</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:17px">🛣️</span> Винетка</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--muted);border-bottom:1px solid var(--border)"><span style="font-size:17px">🚗</span> Каско застраховка</li>
+        <li style="display:flex;align-items:center;gap:10px;padding:9px 0;font-size:14px;color:var(--muted)"><span style="font-size:17px">📋</span> Шофьорска книжка</li>
       </ul>
     </div>
 
-    <div class="visual" style="--accent:rgba(52,211,153,.12)">
+    <div class="feature-visual" style="--vis-glow:rgba(52,211,153,.1)">
       <div style="display:flex;flex-direction:column;gap:10px">
-        <div style="background:rgba(251,113,133,.08);border:1px solid rgba(251,113,133,.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
-          <span style="font-size:22px">🛡️</span>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600">Гражданска застраховка</div><div style="font-size:11px;color:var(--muted)">Изтича на 15.04.2026</div></div>
-          <span class="tag rose" style="font-size:10px">Изтекла!</span>
+        <div style="background:rgba(251,113,133,.07);border:1px solid rgba(251,113,133,.18);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">🛡️</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">Гражданска застраховка</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Изтича на 15.04.2026</div></div>
+          <span class="tag tag-rose" style="font-size:10px;padding:3px 8px">Изтекла!</span>
         </div>
-        <div style="background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
-          <span style="font-size:22px">🔍</span>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600">Технически преглед</div><div style="font-size:11px;color:var(--muted)">Изтича на 28.04.2026</div></div>
-          <span class="tag orange" style="font-size:10px">15 дни</span>
+        <div style="background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.18);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">🔍</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">Технически преглед</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Изтича на 28.04.2026</div></div>
+          <span class="tag tag-orange" style="font-size:10px;padding:3px 8px">15 дни</span>
         </div>
-        <div style="background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.15);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px">
-          <span style="font-size:22px">🛣️</span>
-          <div style="flex:1"><div style="font-size:13px;font-weight:600">Винетка</div><div style="font-size:11px;color:var(--muted)">Изтича на 01.01.2027</div></div>
-          <span class="tag green" style="font-size:10px">В ред</span>
+        <div style="background:rgba(52,211,153,.05);border:1px solid rgba(52,211,153,.14);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px">
+          <span style="font-size:20px">🛣️</span>
+          <div style="flex:1"><div style="font-size:13px;font-weight:700">Винетка</div><div style="font-size:11px;color:var(--muted);margin-top:2px">Изтича на 01.01.2027</div></div>
+          <span class="tag tag-green" style="font-size:10px;padding:3px 8px">В ред</span>
         </div>
-        <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:16px">
-          <div style="font-size:11px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Смяна на масло</div>
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px">
-            <span style="font-size:12px;color:var(--muted)">Изминати</span>
-            <span style="font-size:12px;font-weight:700;color:var(--blue-l)">87 420 км</span>
+        <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:16px;padding:14px">
+          <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px">Смяна на масло</div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:7px">
+            <span style="color:var(--muted)">Изминати</span>
+            <span style="font-weight:700;color:var(--blue-l)">87 420 км</span>
           </div>
-          <div style="background:rgba(255,255,255,.06);border-radius:4px;height:6px;overflow:hidden">
-            <div style="width:72%;height:100%;background:linear-gradient(90deg,var(--blue),#22d3ee);border-radius:4px"></div>
+          <div style="background:rgba(255,255,255,.05);border-radius:4px;height:5px;overflow:hidden">
+            <div id="oil-bar" style="width:72%;height:100%;background:linear-gradient(90deg,var(--blue),var(--cyan));border-radius:4px"></div>
           </div>
-          <div style="display:flex;justify-content:space-between;margin-top:5px">
+          <div style="display:flex;justify-content:space-between;margin-top:6px">
             <span style="font-size:10px;color:var(--muted)">Следваща: 90 000 км</span>
             <span style="font-size:10px;color:var(--orange)">2 580 км остават</span>
           </div>
@@ -734,186 +801,196 @@
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
+
+<!-- BILLBOARD 3 -->
+<div class="billboard reveal">
+  <p class="billboard-text">9 категории разходи.<br/><em>Пълна картина на всеки лев.</em></p>
+</div>
+
+<div class="sep"></div>
 
 <!-- EXPENSES -->
 <section id="expenses">
   <div class="big-feature reveal">
-    <div class="content">
-      <div class="section-label">Разходи</div>
+    <div>
+      <div class="section-eyebrow">Разходи</div>
       <h2>Знай накъде<br/><span class="gradient-text">отиват парите ти</span></h2>
       <p class="section-sub">9 категории разходи с пай диаграма, повтарящи се плащания и калкулатор „Продай или поправи?"</p>
 
-      <div class="feature-grid" style="grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:0">
-        <div class="fcard" style="padding:14px 16px;--glow-color:#fb923c"><span style="font-size:16px">🔧</span><h3 style="font-size:13px;margin-top:8px">Ремонт</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#22d3ee"><span style="font-size:16px">✨</span><h3 style="font-size:13px;margin-top:8px">Автомивка</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#94a3b8"><span style="font-size:16px">🅿️</span><h3 style="font-size:13px;margin-top:8px">Паркинг</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#eab308"><span style="font-size:16px">🛣️</span><h3 style="font-size:13px;margin-top:8px">Магистрала</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#ef4444"><span style="font-size:16px">⚠️</span><h3 style="font-size:13px;margin-top:8px">Глоби</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#3b82f6"><span style="font-size:16px">🛡️</span><h3 style="font-size:13px;margin-top:8px">Застраховка</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#60a5fa"><span style="font-size:16px">🛣️</span><h3 style="font-size:13px;margin-top:8px">Винетка</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#818cf8"><span style="font-size:16px">🔍</span><h3 style="font-size:13px;margin-top:8px">Техн. преглед</h3></div>
-        <div class="fcard" style="padding:14px 16px;--glow-color:#a78bfa"><span style="font-size:16px">📦</span><h3 style="font-size:13px;margin-top:8px">Друго</h3></div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:18px">
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:251,146,60"><span style="font-size:15px">🔧</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Ремонт</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:34,211,238"><span style="font-size:15px">✨</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Автомивка</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:148,163,184"><span style="font-size:15px">🅿️</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Паркинг</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:234,179,8"><span style="font-size:15px">🛣️</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Магистрала</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:239,68,68"><span style="font-size:15px">⚠️</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Глоби</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:59,130,246"><span style="font-size:15px">🛡️</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Застраховка</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:96,165,250"><span style="font-size:15px">🛣️</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Винетка</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:129,140,248"><span style="font-size:15px">🔍</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Техн. преглед</p></div>
+        <div class="bcard" style="padding:13px 15px;--accent-rgb:167,139,250"><span style="font-size:15px">📦</span><p style="font-size:12px;font-weight:700;margin-top:7px;color:var(--text)">Друго</p></div>
       </div>
 
-      <div style="margin-top:16px;background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.2);border-radius:14px;padding:16px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:20px">💡</span>
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#fbbf24">50% отстъпка при глоби</div>
-            <div style="font-size:12px;color:var(--muted)">Приложението автоматично изчислява крайния срок и те предупреждава навреме</div>
-          </div>
+      <div style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.18);border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px">
+        <span style="font-size:18px">💡</span>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#fbbf24">50% отстъпка при глоби</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">Приложението изчислява крайния срок и те предупреждава навреме</div>
         </div>
       </div>
     </div>
 
-    <div class="visual" style="--accent:rgba(251,146,60,.12)">
-      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px">Разпределение на разходите</div>
+    <div class="feature-visual" style="--vis-glow:rgba(251,146,60,.1)">
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px">Разпределение на разходите</div>
       <div class="donut-wrap">
-        <svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0">
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#1a2a4a" stroke-width="22"/>
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#fb923c" stroke-width="22" stroke-dasharray="103 243" stroke-dashoffset="-30" transform="rotate(-90 70 70)"/>
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#3b82f6" stroke-width="22" stroke-dasharray="73 273" stroke-dashoffset="-133" transform="rotate(-90 70 70)"/>
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#34d399" stroke-width="22" stroke-dasharray="55 291" stroke-dashoffset="-206" transform="rotate(-90 70 70)"/>
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#a78bfa" stroke-width="22" stroke-dasharray="40 306" stroke-dashoffset="-261" transform="rotate(-90 70 70)"/>
-          <circle cx="70" cy="70" r="55" fill="none" stroke="#fb7185" stroke-width="22" stroke-dasharray="28 318" stroke-dashoffset="-301" transform="rotate(-90 70 70)"/>
-          <text x="70" y="67" text-anchor="middle" fill="#ddeeff" font-size="16" font-weight="800" font-family="Inter,sans-serif">674</text>
-          <text x="70" y="82" text-anchor="middle" fill="#8ba4c0" font-size="9" font-family="Inter,sans-serif">лв / месец</text>
+        <svg width="136" height="136" viewBox="0 0 136 136" style="flex-shrink:0">
+          <circle cx="68" cy="68" r="52" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="20"/>
+          <circle cx="68" cy="68" r="52" fill="none" stroke="#fb923c" stroke-width="20" stroke-dasharray="98 229" stroke-dashoffset="-28" transform="rotate(-90 68 68)"/>
+          <circle cx="68" cy="68" r="52" fill="none" stroke="#3b82f6" stroke-width="20" stroke-dasharray="69 258" stroke-dashoffset="-126" transform="rotate(-90 68 68)"/>
+          <circle cx="68" cy="68" r="52" fill="none" stroke="#34d399" stroke-width="20" stroke-dasharray="52 275" stroke-dashoffset="-195" transform="rotate(-90 68 68)"/>
+          <circle cx="68" cy="68" r="52" fill="none" stroke="#a78bfa" stroke-width="20" stroke-dasharray="38 289" stroke-dashoffset="-247" transform="rotate(-90 68 68)"/>
+          <circle cx="68" cy="68" r="52" fill="none" stroke="#fb7185" stroke-width="20" stroke-dasharray="26 301" stroke-dashoffset="-285" transform="rotate(-90 68 68)"/>
+          <text x="68" y="64" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="900" font-family="Inter,sans-serif">674</text>
+          <text x="68" y="79" text-anchor="middle" fill="var(--muted)" font-size="8.5" font-family="Inter,sans-serif">лв / месец</text>
         </svg>
         <div class="donut-legend">
-          <div class="legend-item"><span class="legend-dot" style="background:#fb923c"></span>Ремонт — 240 лв</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#3b82f6"></span>Застраховка — 185 лв</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#34d399"></span>Гориво — 145 лв</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Паркинг — 64 лв</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#fb7185"></span>Глоби — 40 лв</div>
+          <div class="legend-row"><span class="legend-dot" style="background:#fb923c"></span>Ремонт — 240 лв</div>
+          <div class="legend-row"><span class="legend-dot" style="background:#3b82f6"></span>Застраховка — 185 лв</div>
+          <div class="legend-row"><span class="legend-dot" style="background:#34d399"></span>Гориво — 145 лв</div>
+          <div class="legend-row"><span class="legend-dot" style="background:#a78bfa"></span>Паркинг — 64 лв</div>
+          <div class="legend-row"><span class="legend-dot" style="background:#fb7185"></span>Глоби — 40 лв</div>
         </div>
       </div>
-      <div style="margin-top:16px;background:rgba(251,146,60,.07);border:1px solid rgba(251,146,60,.15);border-radius:12px;padding:14px">
-        <div style="font-size:11px;font-weight:700;color:#fb923c;margin-bottom:8px">КАЛКУЛАТОР: ПРОДАЙ ИЛИ ПОПРАВИ?</div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>Цена на ремонт</span><span style="color:var(--text);font-weight:600">1 200 лв</span></div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px"><span>Стойност на колата</span><span style="color:var(--text);font-weight:600">6 500 лв</span></div>
-        <div style="margin-top:10px;padding:8px 12px;background:rgba(52,211,153,.1);border-radius:8px;font-size:12px;font-weight:600;color:#34d399;text-align:center">✓ Препоръчително е да поправиш</div>
+
+      <div style="margin-top:14px;background:rgba(251,146,60,.06);border:1px solid rgba(251,146,60,.14);border-radius:14px;padding:14px">
+        <div style="font-size:10px;font-weight:700;color:#fb923c;text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Калкулатор: Продай или поправи?</div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted)"><span>Цена на ремонт</span><span style="color:var(--text);font-weight:700">1 200 лв</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:5px"><span>Стойност на колата</span><span style="color:var(--text);font-weight:700">6 500 лв</span></div>
+        <div style="margin-top:10px;padding:7px 12px;background:rgba(52,211,153,.1);border-radius:8px;font-size:12px;font-weight:700;color:#34d399;text-align:center">✓ Препоръчително е да поправиш</div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- MAPS -->
 <section id="maps">
   <div class="big-feature reverse reveal">
-    <div class="content">
-      <div class="section-label">Карта и инструменти</div>
+    <div>
+      <div class="section-eyebrow">Карта и инструменти</div>
       <h2>Намери колата си,<br/><span class="gradient-text">без да се губиш</span></h2>
       <p class="section-sub">GPS запис на местостоянката, таймер за паркинг и пътнически чеклист.</p>
 
-      <div class="feature-grid" style="grid-template-columns:1fr;gap:12px;margin-top:0">
-        <div class="fcard" style="--glow-color:#22d3ee">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="fcard-icon" style="background:rgba(34,211,238,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">📍</div>
-            <div><h3 style="font-size:15px;margin:0 0 4px">Намери моята кола</h3><p style="font-size:13px;margin:0">Запази местоположението с GPS и отвори директно в Google Maps</p></div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:0">
+        <div class="bcard" style="--accent-rgb:34,211,238">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div class="bcard-icon" style="background:rgba(34,211,238,.1);width:42px;height:42px;border-radius:12px;font-size:18px;margin:0;flex-shrink:0">📍</div>
+            <div><h3 style="font-size:14px;margin:0 0 3px">Намери моята кола</h3><p style="font-size:12px;margin:0">Запази с GPS и отвори директно в Google Maps</p></div>
           </div>
         </div>
-        <div class="fcard" style="--glow-color:#a78bfa">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="fcard-icon" style="background:rgba(167,139,250,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">⏱️</div>
-            <div><h3 style="font-size:15px;margin:0 0 4px">Таймер за паркинг</h3><p style="font-size:13px;margin:0">Задай времето на платения паркинг и получи предупреждение при изтичане</p></div>
+        <div class="bcard" style="--accent-rgb:167,139,250">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div class="bcard-icon" style="background:rgba(167,139,250,.1);width:42px;height:42px;border-radius:12px;font-size:18px;margin:0;flex-shrink:0">⏱️</div>
+            <div><h3 style="font-size:14px;margin:0 0 3px">Таймер за паркинг</h3><p style="font-size:12px;margin:0">Предупреждение при изтичане на платения паркинг</p></div>
           </div>
         </div>
-        <div class="fcard" style="--glow-color:#34d399">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div class="fcard-icon" style="background:rgba(52,211,153,.1);width:44px;height:44px;border-radius:12px;font-size:20px;margin:0;flex-shrink:0">✅</div>
-            <div><h3 style="font-size:15px;margin:0 0 4px">Пътнически чеклист</h3><p style="font-size:13px;margin:0">12 предварително зададени предмета — документи, отразяващ жилет, аптечка и още</p></div>
+        <div class="bcard" style="--accent-rgb:52,211,153">
+          <div style="display:flex;align-items:center;gap:13px">
+            <div class="bcard-icon" style="background:rgba(52,211,153,.1);width:42px;height:42px;border-radius:12px;font-size:18px;margin:0;flex-shrink:0">✅</div>
+            <div><h3 style="font-size:14px;margin:0 0 3px">Пътнически чеклист</h3><p style="font-size:12px;margin:0">12 предмета — документи, отразяващ жилет, аптечка и още</p></div>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="visual" style="--accent:rgba(34,211,238,.1)">
-      <div style="background:#05101e;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.06)">
-        <div style="height:160px;background:linear-gradient(180deg,#0d1f35,#071828);position:relative;overflow:hidden">
-          <div style="position:absolute;inset:0;opacity:.4;background-image:radial-gradient(circle,rgba(59,130,246,.4) 1px,transparent 1px);background-size:30px 30px"></div>
-          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center">
-            <div style="font-size:28px">📍</div>
-            <div style="font-size:11px;font-weight:600;color:var(--blue-l);margin-top:4px;background:rgba(7,17,31,.8);padding:3px 10px;border-radius:20px">Колата е тук</div>
+    <div class="feature-visual" style="--vis-glow:rgba(34,211,238,.08)">
+      <div style="background:#030d18;border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.05)">
+        <div style="height:150px;background:linear-gradient(180deg,#0a1828,#060f1c);position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;opacity:.35;background-image:radial-gradient(circle,rgba(59,130,246,.5) 1px,transparent 1px);background-size:28px 28px"></div>
+          <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center" id="gps-dot">
+            <div style="font-size:26px">📍</div>
+            <div style="font-size:10px;font-weight:700;color:var(--blue-l);margin-top:4px;background:rgba(3,13,24,.85);padding:2px 10px;border-radius:20px;border:1px solid rgba(59,130,246,.2)">Колата е тук</div>
           </div>
         </div>
-        <div style="padding:14px">
-          <div style="font-size:12px;font-weight:600;margin-bottom:10px">42.6977° N, 23.3219° E</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Запазено преди 12 минути</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div style="background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:8px;padding:10px;text-align:center;font-size:12px;font-weight:600;color:var(--blue-l)">🗺️ Google Maps</div>
-            <div style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px;text-align:center;font-size:12px;font-weight:600;color:#fb7185">🗑️ Изтрий</div>
+        <div style="padding:12px">
+          <div style="font-size:11px;font-weight:700;margin-bottom:8px">42.6977° N, 23.3219° E</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:10px">Запазено преди 12 минути</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">
+            <div style="background:rgba(59,130,246,.09);border:1px solid rgba(59,130,246,.18);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--blue-l)">🗺️ Google Maps</div>
+            <div style="background:rgba(239,68,68,.09);border:1px solid rgba(239,68,68,.18);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:#fb7185">🗑️ Изтрий</div>
           </div>
         </div>
       </div>
-      <div style="margin-top:14px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);border-radius:14px;padding:16px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <span style="font-size:13px;font-weight:600">Паркинг таймер</span>
-          <span style="font-size:11px;color:var(--muted)">Зададено: 90 мин</span>
+      <div style="margin-top:12px;background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.18);border-radius:16px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <span style="font-size:12px;font-weight:700">Паркинг таймер</span>
+          <span style="font-size:10px;color:var(--muted)">Зададено: 90 мин</span>
         </div>
-        <div style="text-align:center;font-size:36px;font-weight:900;color:#a78bfa;letter-spacing:2px" id="live-parking">34:21</div>
-        <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:4px">Остават до изтичане</div>
+        <div style="text-align:center;font-size:34px;font-weight:900;color:#a78bfa;letter-spacing:3px;font-variant-numeric:tabular-nums" id="live-parking">34:21</div>
+        <div style="text-align:center;font-size:10px;color:var(--muted);margin-top:3px">Остават до изтичане</div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- REPORTS -->
 <section id="reports">
-  <div class="reveal" style="text-align:center;margin-bottom:56px">
-    <div class="section-label" style="justify-content:center">Отчети и прегледи</div>
+  <div class="reveal" style="text-align:center;margin-bottom:60px">
+    <div class="section-eyebrow" style="justify-content:center">Отчети и прегледи</div>
     <h2>От данни до<br/><span class="gradient-text">ясни решения</span></h2>
     <p class="section-sub" style="margin:0 auto">Генерирай PDF, сподели чрез QR код или открий своя годишен Wrapped.</p>
   </div>
 
-  <div class="feature-grid reveal">
-    <div class="fcard" style="--glow-color:#3b82f6"><div class="fcard-glow"></div><div class="fcard-icon" style="background:rgba(59,130,246,.1)">📋</div><h3>Месечен отчет</h3><p>Пълен PDF с пътувания, зареждания и разходи за избран месец.</p></div>
-    <div class="fcard" style="--glow-color:#a78bfa"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(167,139,250,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(167,139,250,.1)">📅</div><h3>Годишен отчет</h3><p>Сравнение на годините, тенденции и пълна статистика за 12 месеца.</p></div>
-    <div class="fcard" style="--glow-color:#34d399"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(52,211,153,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(52,211,153,.1)">💼</div><h3>Данъчен отчет</h3><p>Разходи за гориво и поддръжка — форматирани за данъчни цели.</p></div>
-    <div class="fcard" style="--glow-color:#fb923c"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(251,146,60,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(251,146,60,.1)">🎊</div><h3>Wrapped — Годишен преглед</h3><p>Забавен анимиран преглед на годината — най-доброто пътуване, постижения, конфети!</p></div>
-    <div class="fcard" style="--glow-color:#22d3ee"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(34,211,238,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(34,211,238,.1)">📲</div><h3>QR споделяне</h3><p>Генерирай QR код с компресираните данни — сподели с механик или счетоводител.</p></div>
-    <div class="fcard" style="--glow-color:#fb7185"><div class="fcard-glow" style="background:linear-gradient(90deg,transparent,rgba(251,113,133,.4),transparent)"></div><div class="fcard-icon" style="background:rgba(251,113,133,.1)">💾</div><h3>Backup и Restore</h3><p>Пълен архив на всички данни с LZ-String компресия.</p></div>
+  <div class="bento">
+    <div class="bcard bc-span-4 reveal stagger-1 glow-blue" style="--accent-rgb:59,130,246"><div class="bcard-icon" style="background:rgba(59,130,246,.1)">📋</div><h3>Месечен отчет</h3><p>Пълен PDF с пътувания, зареждания и разходи за избран месец.</p></div>
+    <div class="bcard bc-span-4 reveal stagger-2 glow-purple" style="--accent-rgb:167,139,250"><div class="bcard-icon" style="background:rgba(167,139,250,.1)">📅</div><h3>Годишен отчет</h3><p>Сравнение на годините, тенденции и пълна статистика за 12 месеца.</p></div>
+    <div class="bcard bc-span-4 reveal stagger-3 glow-green" style="--accent-rgb:52,211,153"><div class="bcard-icon" style="background:rgba(52,211,153,.1)">💼</div><h3>Данъчен отчет</h3><p>Разходи за гориво и поддръжка — форматирани за данъчни цели.</p></div>
+    <div class="bcard bc-span-6 reveal stagger-4 glow-orange" style="--accent-rgb:251,146,60">
+      <div class="bcard-icon" style="background:rgba(251,146,60,.1)">🎊</div>
+      <h3>Wrapped — Годишен преглед</h3>
+      <p>Забавен анимиран преглед на годината — най-доброто пътуване, постижения, конфети!</p>
+    </div>
+    <div class="bcard bc-span-3 reveal stagger-5" style="--accent-rgb:34,211,238"><div class="bcard-icon" style="background:rgba(34,211,238,.1)">📲</div><h3>QR споделяне</h3><p>Генерирай QR код — сподели с механик или счетоводител.</p></div>
+    <div class="bcard bc-span-3 reveal stagger-6" style="--accent-rgb:251,113,133"><div class="bcard-icon" style="background:rgba(251,113,133,.1)">💾</div><h3>Backup и Restore</h3><p>Пълен архив на всички данни с LZ-String компресия.</p></div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- ACHIEVEMENTS -->
 <section>
-  <div class="reveal" style="text-align:center;margin-bottom:40px">
-    <div class="section-label" style="justify-content:center">Геймификация</div>
+  <div class="reveal" style="text-align:center;margin-bottom:44px">
+    <div class="section-eyebrow" style="justify-content:center">Геймификация</div>
     <h2>Отключи <span class="gradient-text">постижения</span></h2>
     <p class="section-sub" style="margin:0 auto">7 награди за вярно проследяване на километри и пътувания.</p>
   </div>
 
-  <div class="achievements reveal">
-    <div class="ach-card"><span class="ach-emoji">✈️</span><div><div class="ach-title">Пътешественик</div><div class="ach-desc">1 000 км</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">🛣️</span><div><div class="ach-title">Дългопробежен</div><div class="ach-desc">5 000 км</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">🏅</span><div><div class="ach-title">Ветеран</div><div class="ach-desc">10 000 км</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">🏆</span><div><div class="ach-title">Легенда</div><div class="ach-desc">50 000 км</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">🚗</span><div><div class="ach-title">Редовен шофьор</div><div class="ach-desc">10 пътувания</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">⭐</span><div><div class="ach-title">Опитен шофьор</div><div class="ach-desc">50 пътувания</div></div></div>
-    <div class="ach-card"><span class="ach-emoji">👑</span><div><div class="ach-title">Мастър шофьор</div><div class="ach-desc">100 пътувания</div></div></div>
+  <div class="ach-grid reveal">
+    <div class="ach-card"><span class="ach-emoji">✈️</span><div><div class="ach-name">Пътешественик</div><div class="ach-km">1 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🛣️</span><div><div class="ach-name">Дългопробежен</div><div class="ach-km">5 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🏅</span><div><div class="ach-name">Ветеран</div><div class="ach-km">10 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🏆</span><div><div class="ach-name">Легенда</div><div class="ach-km">50 000 км</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">🚗</span><div><div class="ach-name">Редовен шофьор</div><div class="ach-km">10 пътувания</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">⭐</span><div><div class="ach-name">Опитен шофьор</div><div class="ach-km">50 пътувания</div></div></div>
+    <div class="ach-card"><span class="ach-emoji">👑</span><div><div class="ach-name">Мастър шофьор</div><div class="ach-km">100 пътувания</div></div></div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- INSTALL -->
 <section id="install">
   <div class="reveal" style="text-align:center;margin-bottom:56px">
-    <div class="section-label" style="justify-content:center">Инсталиране</div>
+    <div class="section-eyebrow" style="justify-content:center">Инсталиране</div>
     <h2>Работи като<br/><span class="gradient-text">нативно приложение</span></h2>
     <p class="section-sub" style="margin:0 auto">Инсталирай директно от браузъра — без App Store, без Google Play. Работи офлайн.</p>
   </div>
 
   <div class="install-grid reveal">
     <div class="install-card">
-      <div class="install-os">🍎</div>
+      <span class="install-os">🍎</span>
       <h3>iOS (iPhone / iPad)</h3>
       <p>Отвори в Safari и добави на началния екран</p>
       <ol class="steps">
@@ -924,7 +1001,7 @@
       </ol>
     </div>
     <div class="install-card">
-      <div class="install-os">🤖</div>
+      <span class="install-os">🤖</span>
       <h3>Android</h3>
       <p>Chrome автоматично предлага инсталиране</p>
       <ol class="steps">
@@ -936,33 +1013,31 @@
     </div>
   </div>
 
-  <div class="reveal" style="margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
-    <span style="font-size:32px">🔒</span>
+  <div class="privacy-bar reveal">
+    <span style="font-size:28px">🔒</span>
     <div>
-      <h3 style="font-size:16px;margin-bottom:4px">Пълна поверителност</h3>
-      <p style="font-size:14px;color:var(--muted);margin:0">Всички данни се съхраняват само на твоето устройство. Никакви сървъри, никакви акаунти, никакви абонаменти.</p>
+      <h3>Пълна поверителност</h3>
+      <p>Всички данни се съхраняват само на твоето устройство. Никакви сървъри, никакви акаунти, никакви абонаменти.</p>
     </div>
-    <div style="margin-left:auto;display:flex;gap:10px;flex-wrap:wrap">
-      <span class="tag green">Офлайн</span>
-      <span class="tag">Без регистрация</span>
-      <span class="tag purple">Безплатно</span>
+    <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+      <span class="tag tag-green">Офлайн</span>
+      <span class="tag tag-blue">Без регистрация</span>
+      <span class="tag tag-purple">Безплатно</span>
     </div>
   </div>
 </section>
 
-<div class="divider"></div>
+<div class="sep"></div>
 
 <!-- CTA -->
 <section>
-  <div class="cta-block reveal">
+  <div class="cta-wrap reveal">
     <h2>Готов ли си да поемеш<br/><span class="gradient-text">контрола над разходите?</span></h2>
     <p>Безплатно, без регистрация, без абонамент. Просто отвори и започни.</p>
-    <div class="hero-actions">
-      <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary" style="padding:14px 32px;font-size:16px">
-        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        Отвори приложението безплатно
-      </a>
-    </div>
+    <a href="https://fuel-web-app-beta.vercel.app" class="btn btn-primary" style="padding:14px 32px;font-size:15px;border-radius:100px">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      Отвори приложението безплатно
+    </a>
   </div>
 </section>
 
@@ -980,34 +1055,35 @@
 </footer>
 
 <script>
-  // ── Reveal on scroll ────────────────────────────────────────
-  const revealObs = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+  // ── Nav scroll ───────────────────────────────────────────────
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', scrollY > 60), { passive: true });
 
-  // ── Stat counter animation ───────────────────────────────────
-  function animateCount(el, target, suffix, duration) {
-    let start = 0, startTime = null;
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      const p = Math.min((ts - startTime) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
+  // ── Reveal on scroll ────────────────────────────────────────
+  const revObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
+
+  // ── Stat counter ─────────────────────────────────────────────
+  function countUp(el, target, suffix, dur) {
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / dur, 1);
+      const ease = 1 - Math.pow(1 - p, 4);
       el.textContent = Math.round(ease * target) + suffix;
       if (p < 1) requestAnimationFrame(step);
-    }
+    };
     requestAnimationFrame(step);
   }
-  const statsObs = new IntersectionObserver((entries) => {
+  const statsObs = new IntersectionObserver(entries => {
     entries.forEach(e => {
       if (!e.isIntersecting) return;
-      const nums = e.target.querySelectorAll('.stat-num');
-      nums.forEach(n => {
-        const raw = n.textContent.trim();
-        const isPlus = raw.includes('+');
-        const isPct  = raw.includes('%');
-        const val = parseInt(raw);
-        if (!isNaN(val)) animateCount(n, val, isPlus ? '+' : isPct ? '%' : '', 1200);
+      e.target.querySelectorAll('.stat-num').forEach(n => {
+        const cnt = +n.dataset.count;
+        const suf = n.dataset.suffix || '';
+        if (!isNaN(cnt)) countUp(n, cnt, suf, 1400);
       });
       statsObs.unobserve(e.target);
     });
@@ -1015,98 +1091,64 @@
   const statsEl = document.querySelector('.stats');
   if (statsEl) statsObs.observe(statsEl);
 
-  // ── Live trip counter ────────────────────────────────────────
-  let tripKm = 48.3, tripSec = 83 * 60 + 0; // 1h23m in seconds
-  function updateTrip() {
-    tripKm   += 0.03 + Math.random() * 0.04;
-    tripSec  += 3;
-    const h  = Math.floor(tripSec / 3600);
-    const m  = Math.floor((tripSec % 3600) / 60);
-    const s  = tripSec % 60;
-    const timeStr = h > 0
+  // ── Live trip ────────────────────────────────────────────────
+  let km = 48.3, sec = 83 * 60;
+  setInterval(() => {
+    km += 0.03 + Math.random() * 0.05; sec += 3;
+    const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60;
+    const t = h > 0
       ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ч`
       : `${m}:${String(s).padStart(2,'0')} мин`;
     const el = document.getElementById('live-trip');
-    if (el) el.textContent = `${tripKm.toFixed(1)} км · ${timeStr}`;
-  }
-  setInterval(updateTrip, 3000);
+    if (el) el.textContent = `${km.toFixed(1)} км · ${t}`;
+  }, 3000);
 
-  // ── Fuel price occasional flicker ──────────────────────────
+  // ── Fuel price flicker ───────────────────────────────────────
   const prices = [2.34, 2.36, 2.38, 2.41, 2.39, 2.37, 2.40];
-  let priceIdx = 2;
-  function flashPrice() {
-    const el    = document.getElementById('live-price');
-    const subEl = document.getElementById('live-price-sub');
-    if (!el || !subEl) return;
-    const next = prices[(priceIdx + 1) % prices.length];
-    const diff = (next - prices[priceIdx]).toFixed(2);
-    const up   = next >= prices[priceIdx];
-    priceIdx   = (priceIdx + 1) % prices.length;
-    el.style.transition = 'color .3s';
-    el.style.color = up ? '#34d399' : '#fb7185';
-    el.textContent = next.toFixed(2) + ' лв';
-    subEl.textContent = (up ? '↑ +' : '↓ ') + Math.abs(diff) + ' лв от миналия път';
-    setTimeout(() => { el.style.color = ''; }, 1500);
-  }
-  setInterval(flashPrice, 5000);
+  let pi = 2;
+  setInterval(() => {
+    const pEl = document.getElementById('live-price');
+    const sEl = document.getElementById('live-price-sub');
+    if (!pEl || !sEl) return;
+    const next = prices[(pi + 1) % prices.length];
+    const diff = (next - prices[pi]).toFixed(2);
+    const up = next >= prices[pi];
+    pi = (pi + 1) % prices.length;
+    pEl.style.transition = 'color .4s';
+    pEl.style.color = up ? '#34d399' : '#fb7185';
+    pEl.textContent = next.toFixed(2) + ' лв';
+    sEl.textContent = (up ? '↑ +' : '↓ ') + Math.abs(diff) + ' лв';
+    setTimeout(() => { pEl.style.color = ''; }, 2000);
+  }, 5000);
 
-  // ── Chart bars re-animate on interval ──────────────────────
-  const heights = [
-    [45,60,35,75,50,65,40,55],
-    [55,40,70,30,80,45,65,50],
-    [30,65,50,45,70,35,55,60],
-    [70,35,55,65,40,75,30,50],
-  ];
-  let chartCycle = 0;
-  function reAnimateBars() {
-    const bars = document.querySelectorAll('.mock-chart .mock-bar');
-    if (!bars.length) return;
-    chartCycle = (chartCycle + 1) % heights.length;
-    const h = heights[chartCycle];
-    bars.forEach((b, i) => {
-      b.style.transition = 'height .6s ease';
-      b.style.height = h[i] + '%';
-    });
-  }
-  setInterval(reAnimateBars, 3500);
+  // ── Chart bars cycle ─────────────────────────────────────────
+  const hs = [[45,60,35,75,50,65,40,55],[55,40,70,30,80,45,65,50],[30,65,50,45,70,35,55,60],[70,35,55,65,40,75,30,50]];
+  let hc = 0;
+  setInterval(() => {
+    const bars = document.querySelectorAll('.mock-cbar');
+    hc = (hc + 1) % hs.length;
+    bars.forEach((b, i) => { b.style.transition = 'height .7s cubic-bezier(.16,1,.3,1)'; b.style.height = hs[hc][i] + '%'; });
+  }, 3500);
 
-  // ── Parking countdown ──────────────────────────────────────
-  let parkMin = 34, parkSec = 21;
-  function tickParking() {
+  // ── Parking countdown ────────────────────────────────────────
+  let pm = 34, ps = 21;
+  setInterval(() => {
     const el = document.getElementById('live-parking');
     if (!el) return;
-    parkSec--;
-    if (parkSec < 0) { parkSec = 59; parkMin--; }
-    if (parkMin < 0) { parkMin = 34; parkSec = 21; } // loop for demo
-    el.textContent = `${String(parkMin).padStart(2,'0')}:${String(parkSec).padStart(2,'0')}`;
-    // Turn red when under 5 min
-    el.style.color = parkMin < 5 ? '#fb7185' : '#a78bfa';
-  }
-  setInterval(tickParking, 1000);
+    ps--; if (ps < 0) { ps = 59; pm--; } if (pm < 0) { pm = 34; ps = 21; }
+    el.textContent = `${String(pm).padStart(2,'0')}:${String(ps).padStart(2,'0')}`;
+    el.style.color = pm < 5 ? '#fb7185' : '#a78bfa';
+  }, 1000);
 
-  // ── Oil bar pulse ─────────────────────────────────────────
-  (function() {
-    const bars = document.querySelectorAll('[style*="72%"]');
-    bars.forEach(b => {
-      b.style.animation = 'oilPulse 2s ease-in-out infinite';
-    });
-  })();
-
-  // ── GPS dot blink ─────────────────────────────────────────
-  const gpsDot = document.querySelector('[style*="Колата е тук"]')?.parentElement;
-  if (gpsDot) {
-    gpsDot.style.animation = 'gpsPing 2.5s ease-in-out infinite';
-  }
+  // ── Oil bar pulse ────────────────────────────────────────────
+  const ob = document.getElementById('oil-bar');
+  if (ob) ob.style.animation = 'oilPulse 2.5s ease-in-out infinite';
 </script>
 
 <style>
   @keyframes oilPulse {
-    0%, 100% { opacity: 1; }
-    50%       { opacity: .6; }
-  }
-  @keyframes gpsPing {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); }
-    50%       { transform: translate(-50%, -50%) scale(1.06); }
+    0%,100% { opacity:1; }
+    50%      { opacity:.55; }
   }
 </style>
 </body>
